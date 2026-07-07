@@ -5,7 +5,7 @@ import { getFirestore } from '@react-native-firebase/firestore';
 // Configuración de Firebase (la obtienes de la consola de Firebase)
 const firebaseConfig = {
   apiKey: "AIzaSyAy4pwC6bgZCJ0QkqbjPR-OMRMQdHHulV0",
-  authDomain: "com.yeampier.barber",
+  authDomain: "barber-629c0.firebaseapp.com",
   projectId: "barber-629c0",
   storageBucket: "barber-629c0.firebasestorage.app",
   messagingSenderId: "118262159405",
