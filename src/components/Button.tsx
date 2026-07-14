@@ -11,7 +11,7 @@ export function BlueButton({ children, disabled=false }: ButtonProps) {
     <Pressable
       disabled={disabled}
       style={({ pressed }) => [
-        styles.button,
+        styles.buttonBlue,
         disabled && styles.buttonDisabled,
         pressed && !disabled && styles.buttonPressed,
       ]}>
@@ -21,7 +21,7 @@ export function BlueButton({ children, disabled=false }: ButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  button: {
+  buttonBlue: {
     backgroundColor: '#124071',
     paddingVertical: 10,
     paddingHorizontal: 20,
