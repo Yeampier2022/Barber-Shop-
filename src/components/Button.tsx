@@ -22,17 +22,17 @@ export function BlueButton({ children, disabled=false }: ButtonProps) {
 
 const styles = StyleSheet.create({
   buttonBlue: {
-    backgroundColor: '#124071',
+    backgroundColor: '#124170',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonPressed: {
-    backgroundColor: '#92adc8',
+    backgroundColor: '#91adc8',
   },
   buttonDisabled: {
-    backgroundColor: '#dcdcdc',
+    backgroundColor: '#F3F2EC',
   },
   text: {
     color: 'white',
