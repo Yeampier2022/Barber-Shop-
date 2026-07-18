@@ -7,7 +7,7 @@ export interface HomeScreenProps {
   onAvatarPress?: () => void;
 }
 
-export function HomeScreen({ userInitials = "YJ", onAvatarPress }: HomeScreenProps) {
+export function HomeScreen({ userInitials = "?", onAvatarPress }: HomeScreenProps) {
   return (
     <View className="flex-1 bg-white">
       <Header

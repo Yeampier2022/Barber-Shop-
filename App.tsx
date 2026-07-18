@@ -4,16 +4,20 @@ import {
   RobotoSlab_700Bold,
   useFonts,
 } from "@expo-google-fonts/roboto-slab";
+import { getAuth, onAuthStateChanged } from "@react-native-firebase/auth";
+import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { LoginScreen } from "./src/screens/LoginScreen";
+import { ProfileScreen } from "./src/screens/ProfileScreen";
 import { RegisterScreen } from "./src/screens/RegisterScreen";
 import { WelcomeScreen } from "./src/screens/WelcomeScreen";
+import { getInitials } from "./src/utils/formatters";
 
 SplashScreen.preventAutoHideAsync();
 
-type View = "welcome" | "login" | "register" | "home";
+type View = "welcome" | "login" | "register" | "home" | "profile";
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -22,19 +26,58 @@ export default function App() {
     RobotoSlab_700Bold,
   });
   const [view, setView] = useState<View>("welcome");
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const hasCheckedInitialAuth = useRef(false);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+
+      if (!hasCheckedInitialAuth.current) {
+        hasCheckedInitialAuth.current = true;
+        setAuthChecked(true);
+        if (firebaseUser) {
+          setView("home");
+        }
+        return;
+      }
+
+      if (!firebaseUser) {
+        setView("welcome");
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && authChecked) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, authChecked]);
 
-  if (!fontsLoaded && !fontError) {
+  if ((!fontsLoaded && !fontError) || !authChecked) {
     return null;
   }
 
+  if (view === "profile") {
+    return (
+      <ProfileScreen
+        onBack={() => setView("home")}
+        onSignedOut={() => setView("welcome")}
+      />
+    );
+  }
+
   if (view === "home") {
-    return <HomeScreen onAvatarPress={() => setView("welcome")} />;
+    return (
+      <HomeScreen
+        userInitials={getInitials(getAuth().currentUser?.displayName ?? user?.displayName)}
+        onAvatarPress={() => setView("profile")}
+      />
+    );
   }
 
   if (view === "login") {
@@ -49,7 +92,7 @@ export default function App() {
   if (view === "register") {
     return (
       <RegisterScreen
-        onSubmit={() => setView("home")}
+        onSubmit={() => setView("login")}
         onLogin={() => setView("login")}
       />
     );

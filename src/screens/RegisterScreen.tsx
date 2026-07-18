@@ -1,24 +1,103 @@
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { Button } from "../components/Button";
 import { Header } from "../components/Header";
 import { Input } from "../components/Input";
+import { getAuthErrorMessage, registerWithEmail } from "../services/authService";
+import { createUserProfile } from "../services/firestoreService";
+import type { UserRole } from "../types/user";
+import {
+  isValidEmail,
+  isValidName,
+  isValidPassword,
+  isValidPhone,
+} from "../utils/validators";
 
 export interface RegisterScreenProps {
   onSubmit?: () => void;
   onLogin?: () => void;
 }
 
-type Role = "client" | "barber";
+type FormErrors = Partial<
+  Record<"name" | "phone" | "email" | "password" | "confirmPassword", string>
+>;
 
 export function RegisterScreen({ onSubmit, onLogin }: RegisterScreenProps) {
-  const [role, setRole] = useState<Role>("client");
+  const [role, setRole] = useState<UserRole>("client");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function validate(): boolean {
+    const nextErrors: FormErrors = {};
+
+    if (!isValidName(name)) {
+      nextErrors.name = "Enter your full name.";
+    }
+    if (!isValidPhone(phone)) {
+      nextErrors.phone = "Enter a valid phone number.";
+    }
+    if (!isValidEmail(email)) {
+      nextErrors.email = "Enter a valid email.";
+    }
+    if (!isValidPassword(password)) {
+      nextErrors.password = "Minimum 6 characters.";
+    }
+    if (confirmPassword !== password) {
+      nextErrors.confirmPassword = "Passwords don't match.";
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  async function handleSubmit() {
+    setFormError(null);
+    if (!validate()) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const user = await registerWithEmail(email, password, name);
+      await createUserProfile(user.uid, { name, phone, email, role });
+      console.log("[Register] Registration complete, uid:", user.uid);
+      Alert.alert("Account created", "Your account was created successfully.", [
+        { text: "OK", onPress: () => onSubmit?.() },
+      ]);
+    } catch (error) {
+      console.error("[Register] Registration failed:", error);
+      setFormError(getAuthErrorMessage(error));
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
-    <View className="flex-1 bg-white">
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <Header />
 
-      <ScrollView className="flex-1 px-6 pt-6" contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        className="flex-1 px-6 pt-6"
+        contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text className="font-roboto-slab-bold text-2xl text-brand-primary">
           Create account
         </Text>
@@ -48,13 +127,59 @@ export function RegisterScreen({ onSubmit, onLogin }: RegisterScreenProps) {
         </View>
 
         <View className="mt-6" style={{ gap: 16 }}>
-          <Input label="Name" placeholder="Full name" />
-          <Input label="Email" placeholder="you@example.com" keyboardType="email-address" />
-          <Input label="Password" placeholder="Password" secureTextEntry />
-          <Input label="Confirm password" placeholder="Confirm password" secureTextEntry />
+          <Input
+            label="Name"
+            placeholder="Full name"
+            value={name}
+            onChangeText={setName}
+            error={errors.name}
+          />
+          <Input
+            label="phone"
+            placeholder="Phone number"
+            keyboardType="phone-pad"
+            value={phone}
+            onChangeText={setPhone}
+            error={errors.phone}
+          />
+          <Input
+            label="Email"
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+            error={errors.email}
+          />
+          <Input
+            label="Password"
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            error={errors.password}
+          />
+          <Input
+            label="Confirm password"
+            placeholder="Confirm password"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            error={errors.confirmPassword}
+          />
         </View>
 
-        <Button size="lg" fullWidth className="mt-8" onPress={onSubmit}>
+        {formError ? (
+          <Text className="mt-4 text-center text-sm text-red-500">{formError}</Text>
+        ) : null}
+
+        <Button
+          size="lg"
+          fullWidth
+          className="mt-8"
+          loading={submitting}
+          onPress={handleSubmit}
+        >
           Sign up
         </Button>
 
@@ -67,6 +192,6 @@ export function RegisterScreen({ onSubmit, onLogin }: RegisterScreenProps) {
           </Text>
         </Pressable>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

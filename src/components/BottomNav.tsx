@@ -1,4 +1,6 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
+import { colors } from "../theme/colors";
 import { cn } from "../utils/cn";
 
 export type BottomNavTab = "Home" | "Appointments" | "Services" | "Profile";
@@ -10,6 +12,13 @@ export interface BottomNavProps {
 }
 
 const TABS: BottomNavTab[] = ["Home", "Appointments", "Services", "Profile"];
+
+const TAB_ICONS: Record<BottomNavTab, keyof typeof MaterialIcons.glyphMap> = {
+  Home: "home",
+  Appointments: "event",
+  Services: "content-cut",
+  Profile: "person",
+};
 
 export function BottomNav({ active, onChange, className }: BottomNavProps) {
   return (
@@ -29,11 +38,10 @@ export function BottomNav({ active, onChange, className }: BottomNavProps) {
             className="flex-1 items-center justify-center py-1"
             style={{ gap: 4 }}
           >
-            <View
-              className={cn(
-                "h-1.5 w-1.5 rounded-full",
-                isActive ? "bg-brand-primary" : "bg-transparent"
-              )}
+            <MaterialIcons
+              name={TAB_ICONS[tab]}
+              size={22}
+              color={isActive ? colors.primary : colors.tertiary}
             />
             <Text
               className={cn(
