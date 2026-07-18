@@ -6,9 +6,8 @@ import {
     startOfDay,
 } from "date-fns";
 
-/**
- * Returns an array of dates beginning at startDate.
- */
+
+// Returns an array of dates beginning at startDate.
 export function getNextDays(
     numberOfDays: number,
     startDate: Date = new Date()
