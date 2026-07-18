@@ -4,7 +4,7 @@ import {
   RobotoSlab_700Bold,
   useFonts,
 } from "@expo-google-fonts/roboto-slab";
-import { getAuth, onAuthStateChanged } from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
@@ -31,16 +31,17 @@ export default function App() {
   const hasCheckedInitialAuth = useRef(false);
 
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
 
       if (!hasCheckedInitialAuth.current) {
         hasCheckedInitialAuth.current = true;
         setAuthChecked(true);
+
         if (firebaseUser) {
           setView("home");
         }
+
         return;
       }
 
@@ -74,7 +75,7 @@ export default function App() {
   if (view === "home") {
     return (
       <HomeScreen
-        userInitials={getInitials(getAuth().currentUser?.displayName ?? user?.displayName)}
+        userInitials={getInitials(auth().currentUser?.displayName ?? user?.displayName)}
         onAvatarPress={() => setView("profile")}
       />
     );
