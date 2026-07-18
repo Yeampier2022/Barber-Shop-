@@ -29,7 +29,7 @@ export function WeekStrip({
           date={date}
           selected={isSameDay(date, selectedDate)}
           today={isToday(date)}
-          onPress={onSelectDate}
+          onPress={() => onSelectDate(date)}
         />
       ))}
     </View>
