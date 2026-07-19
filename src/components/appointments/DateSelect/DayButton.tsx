@@ -48,7 +48,7 @@ export function DayButton({
           style={{
             color: textColor,
             fontFamily: fonts.medium,
-            fontSize: 12,
+            fontSize: 10,
           }}
         >
           {formatWeekday(date)}
@@ -57,7 +57,7 @@ export function DayButton({
           style={{
             color: textColor,
             fontFamily: fonts.bold,
-            fontSize: 18,
+            fontSize: 16,
           }}
         >
           {formatDay(date)}
