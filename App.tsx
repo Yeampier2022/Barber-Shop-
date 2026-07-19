@@ -13,11 +13,11 @@ import { LoginScreen } from "./src/screens/LoginScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
 import { RegisterScreen } from "./src/screens/RegisterScreen";
 import { WelcomeScreen } from "./src/screens/WelcomeScreen";
+import { AppointmentsScreen } from "./src/screens/AppointmentsScreen";
 import { getInitials } from "./src/utils/formatters";
+import { AppView } from "./src/navigation/AppNavigator";
 
 SplashScreen.preventAutoHideAsync();
-
-type View = "welcome" | "login" | "register" | "home" | "profile";
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -25,7 +25,7 @@ export default function App() {
     RobotoSlab_500Medium,
     RobotoSlab_700Bold,
   });
-  const [view, setView] = useState<View>("welcome");
+  const [view, setView] = useState<AppView>("welcome");
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const hasCheckedInitialAuth = useRef(false);
@@ -77,6 +77,9 @@ export default function App() {
       <HomeScreen
         userInitials={getInitials(auth().currentUser?.displayName ?? user?.displayName)}
         onAvatarPress={() => setView("profile")}
+        onNavigate={(screen) => {
+          setView(screen);
+        }}
       />
     );
   }
@@ -95,6 +98,14 @@ export default function App() {
       <RegisterScreen
         onSubmit={() => setView("login")}
         onLogin={() => setView("login")}
+      />
+    );
+  }
+
+  if (view === "appointments") {
+    return (
+      <AppointmentsScreen
+        onNavigate={(screen) => setView(screen)}
       />
     );
   }
