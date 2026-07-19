@@ -4,7 +4,7 @@ import {
   RobotoSlab_700Bold,
   useFonts,
 } from "@expo-google-fonts/roboto-slab";
-import { getAuth, onAuthStateChanged } from "@react-native-firebase/auth";
+import auth from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
@@ -13,11 +13,11 @@ import { LoginScreen } from "./src/screens/LoginScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
 import { RegisterScreen } from "./src/screens/RegisterScreen";
 import { WelcomeScreen } from "./src/screens/WelcomeScreen";
+import { AppointmentsScreen } from "./src/screens/AppointmentsScreen";
 import { getInitials } from "./src/utils/formatters";
+import { AppView } from "./src/navigation/AppNavigator";
 
 SplashScreen.preventAutoHideAsync();
-
-type View = "welcome" | "login" | "register" | "home" | "profile";
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -25,22 +25,23 @@ export default function App() {
     RobotoSlab_500Medium,
     RobotoSlab_700Bold,
   });
-  const [view, setView] = useState<View>("welcome");
+  const [view, setView] = useState<AppView>("welcome");
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const hasCheckedInitialAuth = useRef(false);
 
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
 
       if (!hasCheckedInitialAuth.current) {
         hasCheckedInitialAuth.current = true;
         setAuthChecked(true);
+
         if (firebaseUser) {
           setView("home");
         }
+
         return;
       }
 
@@ -74,8 +75,11 @@ export default function App() {
   if (view === "home") {
     return (
       <HomeScreen
-        userInitials={getInitials(getAuth().currentUser?.displayName ?? user?.displayName)}
+        userInitials={getInitials(auth().currentUser?.displayName ?? user?.displayName)}
         onAvatarPress={() => setView("profile")}
+        onNavigate={(screen) => {
+          setView(screen);
+        }}
       />
     );
   }
@@ -94,6 +98,14 @@ export default function App() {
       <RegisterScreen
         onSubmit={() => setView("login")}
         onLogin={() => setView("login")}
+      />
+    );
+  }
+
+  if (view === "appointments") {
+    return (
+      <AppointmentsScreen
+        onNavigate={(screen) => setView(screen)}
       />
     );
   }

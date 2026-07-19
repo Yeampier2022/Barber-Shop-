@@ -1,13 +1,15 @@
 import { ScrollView, Text, View } from "react-native";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
+import { AppView } from "../navigation/AppNavigator";
 
 export interface HomeScreenProps {
   userInitials?: string;
   onAvatarPress?: () => void;
+  onNavigate: (screen: AppView) => void;
 }
 
-export function HomeScreen({ userInitials = "?", onAvatarPress }: HomeScreenProps) {
+export function HomeScreen({ userInitials = "?", onAvatarPress, onNavigate }: HomeScreenProps) {
   return (
     <View className="flex-1 bg-white">
       <Header
@@ -34,7 +36,23 @@ export function HomeScreen({ userInitials = "?", onAvatarPress }: HomeScreenProp
         </View>
       </ScrollView>
 
-      <BottomNav active="Home" />
+      <BottomNav
+        active="Home"
+        onChange={(tab) => {
+          if (tab === "Profile") {
+            onNavigate("profile");
+          }
+          if (tab === "Appointments") {
+            onNavigate("appointments");
+          }
+          if (tab === "Services") {
+            onNavigate("services");
+          }
+          if (tab === "Home") {
+            onNavigate("home");
+          }
+        }}
+      />
     </View>
   );
 }
