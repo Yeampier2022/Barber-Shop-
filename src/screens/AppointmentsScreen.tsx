@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, ScrollView } from "react-native";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
+import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
@@ -33,6 +34,15 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
         </View>
       </ScrollView>
 
+      <ScrollView>
+        <View>
+          <MonthDisplay
+            month={selectedDate}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        </View>
+      </ScrollView>
       <BottomNav
         active="Appointments"
         onChange={(tab) => onNavigate(tab.toLowerCase() as AppView)}
