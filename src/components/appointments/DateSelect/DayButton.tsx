@@ -23,20 +23,19 @@ export function DayButton({
     onPress,
 }: DayButtonProps) {
 
-    const buttonVariant = selected
-        ? "solid"
-        : "soft";
+  const buttonVariant =
+    selected
+      ? "solid"
+      : "soft";
 
-    const textColor = selected
-        ? colors.cream
-        : colors.primary;
-
-    const buttonClass = disabled
-        ? "opacity-50"
-        : "flex-1 mx-1 rounded-xl py-2";
+  const textColor = 
+    buttonVariant === "solid"
+      ? colors.cream
+      : colors.primary;
+  
   return (
     <Button
-      variant={selected ? "solid" : "soft"}
+      variant={buttonVariant}
       color="primary"
       size="sm"
       disabled={disabled}
