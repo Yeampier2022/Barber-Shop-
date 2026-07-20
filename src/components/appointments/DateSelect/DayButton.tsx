@@ -1,60 +1,103 @@
-import { Button } from "../../Button";
+import {
+  Button,
+  type ButtonColor,
+  type ButtonSize,
+  type ButtonVariant,
+} from "../../Button";
 import { View, Text } from "react-native";
 import { colors } from "../../../theme/colors";
 import { fonts } from "../../../theme/fonts";
 import {
   formatDay,
   formatWeekday,
+  type DayState,
 } from "../../../utils/dateUtils";
 
 type DayButtonProps = {
   date: Date;
-  selected?: boolean;
-  today?: boolean;
-  disabled?: boolean;
+  state: DayState;
+  showWeekday?: boolean;
   onPress: () => void;
 };
 
+const DAY_STYLES: Record<DayState, {
+    variant: ButtonVariant;
+    color: ButtonColor;
+    textColor: string;
+    showTodayDot: boolean;
+    disabled: boolean;
+  }> = {
+    default: {
+      variant: "soft",
+      color: "primary",
+      textColor: colors.primary,
+      showTodayDot: false,
+      disabled: false,
+    },
+    disabled: {
+      variant: "soft",
+      color: "primary",
+      textColor: colors.tertiary,
+      showTodayDot: false,
+      disabled: true,
+    },
+    muted: {
+      variant: "soft",
+      color: "primary",
+      textColor: colors.tertiary,
+      showTodayDot: false,
+      disabled: true,
+    },
+    today: {
+      variant: "soft",
+      color: "primary",
+      textColor: colors.primary,
+      showTodayDot: true,
+      disabled: false,
+    }, 
+    selected: {
+      variant: "solid",
+      color: "primary",
+      textColor: colors.cream,
+      showTodayDot: false,
+      disabled: false,
+    },
+  };
+  
+  
 export function DayButton({
     date,
-    selected = false,
-    today = false,
-    disabled = false,
+    state = "default",
+    showWeekday = true,
     onPress,
 }: DayButtonProps) {
 
-  const buttonVariant =
-    selected
-      ? "solid"
-      : "soft";
+  const style = DAY_STYLES[state];
 
-  const textColor = 
-    buttonVariant === "solid"
-      ? colors.cream
-      : colors.primary;
-  
   return (
     <Button
-      variant={buttonVariant}
-      color="primary"
+      variant={style.variant}
+      color={style.color}
       size="sm"
-      disabled={disabled}
+      disabled={style.disabled}
       className="flex-1 mx-1 rounded-xl py-2"
       onPress={onPress}
     >
       <View className="items-center">
-        <Text
+        {showWeekday && (
+          <Text
           style={{
-            color: textColor,
+            color: style.textColor,
             fontFamily: fonts.medium,
             fontSize: 10,
           }}
-        >
-          {formatWeekday(date)}
-        </Text>
+          >
+            {formatWeekday(date)}
+          </Text>
+        )}
         <Text
           style={{
-            color: textColor,
+            color: style.textColor,
             fontFamily: fonts.bold,
             fontSize: 16,
           }}
@@ -62,7 +105,7 @@ export function DayButton({
           {formatDay(date)}
         </Text>
         <View className="h-2 justify-center">
-          {today && (
+          {style.showTodayDot && (
             <View
               style={{
                 backgroundColor: colors.secondary, 
