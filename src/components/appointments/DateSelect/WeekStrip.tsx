@@ -4,7 +4,9 @@ import { DayButton } from "./DayButton";
 import {
   getNextDays,
   isSameDay,
-  isToday,
+  createCalendarDays,
+  type CalendarDay,
+  type DayState,
 } from "../../../utils/dateUtils";
 
 type WeekStripProps = {
@@ -19,17 +21,19 @@ export function WeekStrip({
   onSelectDate,
 }: WeekStripProps) {
 
-  const dates = getNextDays(7, weekStart);
+  const days = createCalendarDays(
+    getNextDays(7, weekStart)
+  );
 
   return (
     <View className="flex-row justify-between">
-      {dates.map((date) => (
+      {days.map((day) => (
         <DayButton
-          key={date.toISOString()}
-          date={date}
-          selected={isSameDay(date, selectedDate)}
-          today={isToday(date)}
-          onPress={() => onSelectDate(date)}
+          key={day.date.toISOString()}
+          date={day.date}
+          state={isSameDay(day.date, selectedDate) ? "selected" : "default"}
+          showWeekday={true}
+          onPress={() => onSelectDate(day.date)}
         />
       ))}
     </View>
