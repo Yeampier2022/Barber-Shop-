@@ -26,6 +26,19 @@ export function getNextDays(
     );
 }
 
+export function createCalendarDays(
+    dates: Date[],
+    month?: Date
+    ): CalendarDay[] {
+    return dates.map(date => ({
+        date,
+        currentMonth: month
+        ? isSameMonth(date, month)
+        : true,
+        isBookable: isDateInWindow(date),
+    }));
+}
+
 export function isSameDay(date1: Date, date2: Date) {
     return dfIsSameDay(date1, date2);
 }
@@ -46,18 +59,61 @@ export function formatMonth(date: Date) {
     return format(date, "MMMM yyyy"); // July 2026
 }
 
+export type CalendarDay = {
+    date: Date;
+    currentMonth: boolean;
+    isBookable: boolean;
+}
+
+export type DayState = 
+    | "default"
+    | "selected"
+    | "today"
+    | "muted"
+    | "disabled";
+
+
+export function getDayState(
+    day: CalendarDay,
+    selectedDate: Date,
+): DayState {
+    if (isSameDay(day.date, selectedDate)) {
+        return "selected";
+    }
+
+    if (!day.isBookable) {
+        return "disabled";
+    }
+
+    if (!day.currentMonth) {
+        return "muted";
+    }
+
+    if (isToday(day.date)) {
+        return "today";
+    }
+
+    return "default";
+}
+
 // Returns an array of dates that would be displayed in a standard month calendar view
-export function getMonthGrid(month: Date): Date[] {
+export function getMonthGrid(month: Date): CalendarDay[] {
     const start = startOfWeek(startOfMonth(month));
-    const end = startOfWeek(endOfMonth(month));
-    const dates: Date[] = [];
+    const end = endOfWeek(endOfMonth(month));
+    const days: CalendarDay[] = [];
 
     let current = start;
+
     while (current <= end) {
-        dates.push(current);
+        days.push({
+            date: current,
+            currentMonth: isSameMonth(current, month),
+            isBookable: isDateInWindow(current),
+        });
         current = addDays(current, 1);
     }
-    return dates;
+
+return days;
 }
 
 // Determines if the month provided is the same as the month of the date (for display purposes)
