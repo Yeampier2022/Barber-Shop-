@@ -52,3 +52,8 @@ firebaseConfig.ts
 # Archivos de configuración de Android
 android/local.properties
 android/app/google-services.json
+
+# AI tooling config
+CLAUDE.md
+AGENTS.md
+.claude/
