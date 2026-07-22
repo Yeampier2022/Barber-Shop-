@@ -13,8 +13,7 @@ import {
 
 const BOOKING_WINDOW_DAYS = 30; // How far out can a booking be made
 
-// Returns an array of dates beginning at startDate.
-export function getNextDays(
+export function getNextDays( // Returns an array of dates beginning at startDate.
     numberOfDays: number,
     startDate: Date = new Date()
 ): Date[] {
@@ -37,6 +36,12 @@ export function createCalendarDays(
         : true,
         isBookable: isDateInWindow(date),
     }));
+}
+
+export function weekdayLabels() { // Returns days of the week for calendar view
+    const start = startOfWeek(new Date());
+    const days = getNextDays(7, start);
+    return days.map(formatWeekday);
 }
 
 export function isSameDay(date1: Date, date2: Date) {
