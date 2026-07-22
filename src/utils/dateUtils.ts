@@ -10,6 +10,7 @@ import {
     startOfWeek,
     startOfMonth,
 } from "date-fns";
+import { CalendarDay, DayState } from "../types/calendar";
 
 const BOOKING_WINDOW_DAYS = 30; // How far out can a booking be made
 
@@ -68,20 +69,6 @@ export function formatDay(date: Date) {
 export function formatMonth(date: Date) {
     return format(date, "MMMM yyyy"); // July 2026
 }
-
-export type CalendarDay = {
-    date: Date;
-    currentMonth: boolean;
-    isBookable: boolean;
-}
-
-export type DayState = 
-    | "default"
-    | "selected"
-    | "today"
-    | "muted"
-    | "disabled";
-
 
 export function getDayState(
     day: CalendarDay,
