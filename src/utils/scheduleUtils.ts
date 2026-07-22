@@ -1,11 +1,12 @@
-import { set, addMinutes } from "date-fns";
-import { TimeSlot } from "../types/schedule";
+import { set, addMinutes, isEqual, DateArg } from "date-fns";
+import { TimeSlot, SlotState } from "../types/schedule";
 
 export function getTimeSlots(
   day: Date,
   startHour: number,
   endHour: number,
-  slotLength: number
+  slotLength: number,
+  slotState: SlotState
 ): TimeSlot[] {
   
   const start = set(day, { // Set start of day, clear minutes and seconds
@@ -37,4 +38,34 @@ export function getTimeSlots(
     current = slotEnd;
   }
   return slots;
+}
+
+export function isSelectedSlot(
+  slot: TimeSlot,
+  selectedStart: Date | null
+) {
+  return selectedStart !== null &&
+    isEqual(slot.start, selectedStart);
+}
+
+export function getSlotState(
+  slot: TimeSlot,
+  selectedStart: Date | null,
+): SlotState {
+  if (!slot.isBookable) {
+    return "unavailable";
+  }
+  if (isSelectedSlot(slot, selectedStart)) {
+    return "selected";
+  }
+  
+  return "available";
+}
+
+export function formatTime() {
+
+}
+
+export function filterSlots() {
+
 }
