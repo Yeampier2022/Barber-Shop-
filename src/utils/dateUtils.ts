@@ -74,18 +74,15 @@ export function getDayState(
     day: CalendarDay,
     selectedDate: Date,
 ): DayState {
-    if (isSameDay(day.date, selectedDate)) {
-        return "selected";
-    }
-
     if (!day.isBookable) {
         return "disabled";
     }
-
     if (!day.currentMonth) {
         return "muted";
     }
-
+    if (isSameDay(day.date, selectedDate)) {
+        return "selected";
+    }
     if (isToday(day.date)) {
         return "today";
     }
