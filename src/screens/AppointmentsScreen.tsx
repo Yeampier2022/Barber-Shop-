@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { View, ScrollView } from "react-native";
+import { subMonths, addMonths } from "date-fns";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
+import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
@@ -16,6 +18,7 @@ export interface AppointmentsScreenProps {
 export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNavigate }: AppointmentsScreenProps ) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(new Date());
+  const [displayMonth, setDisplayMonth] = useState(new Date());
   return ( 
     <View>
       <Header
@@ -36,8 +39,19 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
 
       <ScrollView>
         <View>
+          <MonthHeader
+            month={displayMonth}
+            onPreviousMonth={() => {
+              setDisplayMonth(subMonths(displayMonth, 1));
+            }}
+            onNextMonth={() => {
+              setDisplayMonth(addMonths(displayMonth, 1));
+            }}
+          />
+        </View>
+        <View>
           <MonthDisplay
-            month={selectedDate}
+            month={displayMonth}
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
           />
