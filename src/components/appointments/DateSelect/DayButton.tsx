@@ -29,7 +29,7 @@ const DAY_STYLES: Record<DayState, {
   }> = {
     default: {
       variant: "soft",
-      color: "primary",
+      color: "tertiary",
       textColor: colors.primary,
       showTodayDot: false,
       disabled: false,
@@ -50,7 +50,7 @@ const DAY_STYLES: Record<DayState, {
     },
     today: {
       variant: "soft",
-      color: "primary",
+      color: "tertiary",
       textColor: colors.primary,
       showTodayDot: true,
       disabled: false,
