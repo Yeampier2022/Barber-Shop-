@@ -1,6 +1,12 @@
 import { View, Text, Pressable } from 'react-native';
 import { Button } from '../../Button';
-import { formatMonth, weekdayLabels } from '../../../utils/dateUtils';
+import {
+  formatMonth,
+  weekdayLabels,
+  getCurrentBookingMonth,
+  getLastBookableMonth,
+  isSameMonth
+} from '../../../utils/dateUtils';
 import { colors } from '../../../theme/colors';
 import { fonts } from '../../../theme/fonts';
 
@@ -22,6 +28,11 @@ export function MonthHeader({
 
   const monthLabel = formatMonth(month);
   const weekdays = weekdayLabels();
+  const currentMonth = getCurrentBookingMonth();
+  const lastBookableMonth = getLastBookableMonth();
+
+  previousDisabled = isSameMonth(month, currentMonth);
+  nextDisabled = isSameMonth(month, lastBookableMonth);
 
   return (
     <View>
