@@ -24,8 +24,8 @@ export function MonthHeader({
   const weekdays = weekdayLabels();
 
   return (
-    <View className="flex-row items-center justify-between">
-      <View className="flex-row">
+    <View>
+      <View className="flex-row items-center justify-between">
         <Button
           size="sm"
           variant="soft"
@@ -48,9 +48,9 @@ export function MonthHeader({
       </View>
       <View className="flex-row">
         {weekdays.map((weekday) => (
-          <span key={weekday} className="flex-1 text-center">
+          <Text key={weekday} className="flex-1 text-center">
             {weekday}
-          </span>
+          </Text>
         ))}
       </View>
     </View>
