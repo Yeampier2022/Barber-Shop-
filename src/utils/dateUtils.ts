@@ -48,6 +48,11 @@ export function isSameDay(date1: Date, date2: Date) {
     return dfIsSameDay(date1, date2);
 }
 
+// Determines if the month provided is the same as the month of the date (for display purposes)
+export function isSameMonth(date: Date, month: Date) {
+    return dfIsSameMonth(date, month);
+}
+
 export function isToday(date: Date) {
     return dfIsToday(date);
 }
@@ -121,11 +126,6 @@ export function getMonthGrid(month: Date): CalendarDay[] {
 return days;
 }
 
-// Determines if the month provided is the same as the month of the date (for display purposes)
-export function isSameMonth(date: Date, month: Date) {
-    return dfIsSameMonth(date, month);
-}
-
 // Returns what dates are in the booking window
 export function getBookingWindow() {
     const today = startOfDay(new Date());
@@ -133,6 +133,16 @@ export function getBookingWindow() {
         minDate: today,
         maxDate: addDays(today, BOOKING_WINDOW_DAYS),
     }
+}
+
+export function getCurrentBookingMonth() {
+    const window = getBookingWindow();
+    return startOfMonth(window.minDate);
+}
+
+export function getLastBookableMonth() {
+    const window = getBookingWindow();
+    return startOfMonth(window.maxDate);
 }
 
 // Compares date to the booking window (for display purposes)
