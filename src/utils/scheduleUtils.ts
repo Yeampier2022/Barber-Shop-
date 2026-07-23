@@ -47,6 +47,10 @@ export function isSelectedSlot(
     isEqual(slot.start, selectedStart);
 }
 
+export function isPastSlot(slot: TimeSlot) {
+  return slot.start < new Date();
+}
+
 export function getSlotState(
   slot: TimeSlot,
   selectedStart: Date | null,
@@ -85,6 +89,17 @@ export function applyAppointments(
     return {
       ...slot,
       isBookable: !unavailable
+    };
+  })
+}
+
+export function applyPastAvailable(
+  slots: TimeSlot[]
+): TimeSlot[] {
+  return slots.map(slot => {
+    return {
+      ...slot,
+      isBookable: slot.isBookable && !isPastSlot(slot),
     };
   })
 }

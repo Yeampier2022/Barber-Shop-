@@ -1,6 +1,6 @@
 import { TimeSlotButton } from "./TimeSlotButton";
 import { View } from "react-native";
-import { getTimeSlots, getSlotState, applyAppointments } from "../../../utils/scheduleUtils";
+import { getTimeSlots, getSlotState, applyAppointments, applyPastAvailable } from "../../../utils/scheduleUtils";
 import type { TimeSlot, Appointment } from "../../../types/schedule";
 
 type ScheduleDisplayProps = {
@@ -30,14 +30,14 @@ export function ScheduleDisplay({
     slotLength
   );
 
-  const slots = applyAppointments(allSlots, appointments || []);
+  const openSlots = applyAppointments(allSlots, appointments || []);
 
+  const availableSlots = applyPastAvailable(openSlots);
   // TODO: Apply barber availability
-  // slots = slots.filter((slot) => slot.isBookable);
 
   return (
     <View className="flex-row flex-wrap pt-2">
-      {slots.map((slot) => (
+      {availableSlots.map((slot) => (
         <TimeSlotButton
           key={slot.start.toISOString()}
           slot={slot}
