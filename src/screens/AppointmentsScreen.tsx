@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, ScrollView } from "react-native";
 import { subMonths, addMonths } from "date-fns";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
@@ -17,6 +17,8 @@ export interface AppointmentsScreenProps {
   onNavigate: (screen: AppView) => void;
 }
 
+type CalendarMode = "week" | "month";
+
 const MOCK_SCHEDULE = {
   startHour: 9,
   endHour: 17,
@@ -30,6 +32,11 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
   const [weekStart, setWeekStart] = useState(new Date());
   const [displayMonth, setDisplayMonth] = useState(new Date());
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
+  useEffect(() => {
+    setSelectedStartTime(null);
+  }, [selectedDate]);
+  
   return ( 
     <View>
       <Header
