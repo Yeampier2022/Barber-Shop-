@@ -21,4 +21,23 @@ export function ScheduleDisplay({
   onSlotPress,
 }: ScheduleDisplayProps) {
   
+  const slots = getTimeSlots(
+    day,
+    startHour,
+    endHour,
+    slotLength
+  );
+
+  return (
+    <View className="flex-row flex-wrap justify-between mt-1.5 mb-2.5">
+      {slots.map((slot) => (
+        <TimeSlotButton
+          key={slot.start.toISOString()}
+          slot={slot}
+          state={getSlotState(slot, selectedStartTime)}
+          onPress={() => onSlotPress(slot)}
+        />
+      ))}
+    </View>
+  )
 }
