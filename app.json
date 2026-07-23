@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Barber App",
-    "slug": "Barber App",
+    "slug": "barber-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,7 +31,20 @@
     "plugins": [
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "ndkVersion": "26.1.10909125"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fddb1ac4-b1ab-41c7-81ad-4bf3d3e22627"
+      }
+    }
   }
 }
