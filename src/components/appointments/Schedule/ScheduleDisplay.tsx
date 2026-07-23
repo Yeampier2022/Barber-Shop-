@@ -1,13 +1,14 @@
 import { TimeSlotButton } from "./TimeSlotButton";
 import { View } from "react-native";
-import { getTimeSlots, getSlotState } from "../../../utils/scheduleUtils";
-import type { TimeSlot } from "../../../types/schedule";
+import { getTimeSlots, getSlotState, applyAppointments } from "../../../utils/scheduleUtils";
+import type { TimeSlot, Appointment } from "../../../types/schedule";
 
 type ScheduleDisplayProps = {
   day: Date;
   startHour: number;
   endHour: number;
   slotLength: number;
+  appointments: Appointment[];
   selectedStartTime: Date | null;
   onSlotPress: (slot: TimeSlot) => void;
 };
@@ -17,19 +18,21 @@ export function ScheduleDisplay({
   startHour,
   endHour,
   slotLength,
+  appointments,
   selectedStartTime,
   onSlotPress,
 }: ScheduleDisplayProps) {
   
-  const slots = getTimeSlots(
+  const allSlots = getTimeSlots(
     day,
     startHour,
     endHour,
     slotLength
   );
 
+  const slots = applyAppointments(allSlots, appointments || []);
+
   // TODO: Apply barber availability
-  // Check for currently booked slots
   // slots = slots.filter((slot) => slot.isBookable);
 
   return (
