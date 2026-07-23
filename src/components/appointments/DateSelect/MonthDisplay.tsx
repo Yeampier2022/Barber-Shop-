@@ -25,7 +25,7 @@ export function MonthDisplay({
   return (
     <View>
       {weeks.map((week, weekIndex) => (
-        <View key={weekIndex} className="flex-row justify-between py-0.5">
+        <View key={weekIndex} className="flex-row justify-between px-1 py-0.5">
           {week.map((day) => (
             <DayButton
               key={day.date.toISOString()}
