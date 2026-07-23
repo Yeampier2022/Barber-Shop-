@@ -6,7 +6,6 @@ export function getTimeSlots(
   startHour: number,
   endHour: number,
   slotLength: number,
-  slotState: SlotState
 ): TimeSlot[] {
   
   const start = set(day, { // Set start of day, clear minutes and seconds
@@ -52,9 +51,6 @@ export function getSlotState(
   slot: TimeSlot,
   selectedStart: Date | null,
 ): SlotState {
-  if (!slot.isBookable) {
-    return "unavailable";
-  }
   if (isSelectedSlot(slot, selectedStart)) {
     return "selected";
   }
