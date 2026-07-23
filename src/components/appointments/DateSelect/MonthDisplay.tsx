@@ -1,11 +1,7 @@
 import { DayButton } from "./DayButton";
 import { View } from "react-native";
-
-import {
-  getMonthGrid,
-  getDayState,
-  type CalendarDay,
-} from "../../../utils/dateUtils";
+import { getMonthGrid, getDayState } from "../../../utils/dateUtils";
+import type { CalendarDay } from "../../../types/calendar";
 
 type MonthDisplayProps = {
   month: Date;
