@@ -12,7 +12,7 @@ export function CalendarToggle({
 }: CalendarToggleProps) {
 
   return (
-    <View className="flex-row">
+    <View className="flex-row justify-center items-center gap-4">
       <Button
         variant={mode === "week" ? "solid" : "soft"}
         size="sm"
