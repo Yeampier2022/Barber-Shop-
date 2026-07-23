@@ -58,6 +58,10 @@ export function isToday(date: Date) {
     return dfIsToday(date);
 }
 
+export function formatFullDate(date: Date) {
+  return format(date, "EEEE, MMMM d");
+}
+
 export function formatWeekday(date: Date) {
     return format(date, "EEE");   // Mon
 }
