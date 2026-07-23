@@ -22,13 +22,7 @@ const TIME_SLOT_STYLES: Record<SlotState, {
   disabled: boolean;
   className?: string;
 }> = {
-  available: { 
-    variant: "soft",
-    color: "tertiary",
-    textColor: colors.primary,
-    disabled: false,
-    className: "mx-1 rounded-xl py-2"
-  },
+
   unavailable: { 
     variant: "soft",
     color: "primary",
@@ -39,8 +33,14 @@ const TIME_SLOT_STYLES: Record<SlotState, {
     variant: "solid",
     color: "primary",
     textColor: colors.cream,
-    disabled: false
-   },
+    disabled: false,
+  },
+  available: { 
+    variant: "soft",
+    color: "tertiary",
+    textColor: colors.primary,
+    disabled: false,
+  },
 };
 
 export function TimeSlotButton({
@@ -57,7 +57,7 @@ export function TimeSlotButton({
       color={style.color}
       size="sm"
       disabled={style.disabled}
-      className={style.className}
+      className= "mx-1 rounded-xl py-2 my-0.5 w-[23%]"
       onPress={onPress}
     >
       <Text

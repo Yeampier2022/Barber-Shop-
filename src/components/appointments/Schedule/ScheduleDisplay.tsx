@@ -28,8 +28,12 @@ export function ScheduleDisplay({
     slotLength
   );
 
+  // TODO: Apply barber availability
+  // Check for currently booked slots
+  // slots = slots.filter((slot) => slot.isBookable);
+
   return (
-    <View className="flex-row flex-wrap justify-between mt-1.5 mb-2.5">
+    <View className="flex-row flex-wrap pt-2">
       {slots.map((slot) => (
         <TimeSlotButton
           key={slot.start.toISOString()}
