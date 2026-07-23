@@ -1,5 +1,5 @@
 import { set, addMinutes, isEqual, format } from "date-fns";
-import { TimeSlot, SlotState } from "../types/schedule";
+import type { TimeSlot, SlotState, Appointment } from "../types/schedule";
 
 export function getTimeSlots(
   day: Date,
@@ -51,6 +51,9 @@ export function getSlotState(
   slot: TimeSlot,
   selectedStart: Date | null,
 ): SlotState {
+  if (!slot.isBookable) {
+    return "unavailable";
+  } 
   if (isSelectedSlot(slot, selectedStart)) {
     return "selected";
   }
@@ -62,6 +65,26 @@ export function formatTime(time: Date) {
   return format(time, "h:mm a");
 }
 
-export function filterSlots() {
+export function doesOverlap(
+  slot: TimeSlot,
+  appointment: Appointment) {
+  return (
+    slot.start < appointment.end &&
+    slot.end > appointment.start
+  );
+}
 
+export function applyAppointments(
+  slots: TimeSlot[],
+  appointments: Appointment[]
+): TimeSlot[] {
+  return slots.map(slot => {
+    const unavailable = appointments.some(
+      appointment => doesOverlap(slot, appointment)
+    );
+    return {
+      ...slot,
+      isBookable: !unavailable
+    };
+  })
 }
