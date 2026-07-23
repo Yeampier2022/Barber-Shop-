@@ -21,9 +21,7 @@ type MonthHeaderProps = {
 export function MonthHeader({
   month,
   onPreviousMonth,
-  onNextMonth,
-  previousDisabled,
-  nextDisabled
+  onNextMonth
 }: MonthHeaderProps) {
 
   const monthLabel = formatMonth(month);
@@ -31,12 +29,12 @@ export function MonthHeader({
   const currentMonth = getCurrentBookingMonth();
   const lastBookableMonth = getLastBookableMonth();
 
-  previousDisabled = isSameMonth(month, currentMonth);
-  nextDisabled = isSameMonth(month, lastBookableMonth);
+  const previousDisabled = isSameMonth(month, currentMonth);
+  const nextDisabled = isSameMonth(month, lastBookableMonth);
 
   return (
-    <View>
-      <View className="flex-row items-center justify-between">
+    <View className="mb-2">
+      <View className="flex-row items-center justify-between mb-2">
         <Button
           size="sm"
           variant="soft"
@@ -46,7 +44,14 @@ export function MonthHeader({
         >
           &lt;
         </Button>
-        <Text>{monthLabel}</Text>
+        <Text style={{
+          fontFamily: fonts.bold,
+          fontSize: 16,
+          color: colors.primary
+        }}
+        >
+          {monthLabel}
+        </Text>
         <Button
           size="sm"
           variant="soft"          
@@ -57,9 +62,18 @@ export function MonthHeader({
           &gt;
         </Button>
       </View>
-      <View className="flex-row">
+      <View className="flex-row px-1">
         {weekdays.map((weekday) => (
-          <Text key={weekday} className="flex-1 text-center">
+          <Text
+            key={weekday}
+            style={{
+              flex: 1,
+              textAlign: "center",
+              fontFamily: fonts.medium,
+              fontSize: 12,
+              color: colors.primary,
+            }}
+          >
             {weekday}
           </Text>
         ))}
