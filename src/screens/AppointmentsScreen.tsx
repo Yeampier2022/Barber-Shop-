@@ -4,6 +4,7 @@ import { subMonths, addMonths } from "date-fns";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
+import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
@@ -14,11 +15,17 @@ export interface AppointmentsScreenProps {
   onNavigate: (screen: AppView) => void;
 }
 
+const MOCK_SCHEDULE = {
+  startHour: 9,
+  endHour: 17,
+  slotLength: 30,
+}
 
 export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNavigate }: AppointmentsScreenProps ) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(new Date());
   const [displayMonth, setDisplayMonth] = useState(new Date());
+  const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
   return ( 
     <View>
       <Header
@@ -35,9 +42,7 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
             onSelectDate={setSelectedDate}
           />
         </View>
-      </ScrollView>
 
-      <ScrollView>
         <View>
           <MonthHeader
             month={displayMonth}
@@ -54,6 +59,17 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
             month={displayMonth}
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
+          />
+        </View>
+
+        <View>
+          <ScheduleDisplay
+            day={selectedDate}
+            startHour={MOCK_SCHEDULE.startHour}
+            endHour={MOCK_SCHEDULE.endHour}
+            slotLength={MOCK_SCHEDULE.slotLength}
+            selectedStartTime={selectedStartTime}
+            onSlotPress={(slot) => setSelectedStartTime(slot.start)}
           />
         </View>
       </ScrollView>
