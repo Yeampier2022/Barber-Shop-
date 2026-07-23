@@ -8,3 +8,10 @@ export type SlotState =
   | "available"
   | "selected"
   | "unavailable";
+
+export type Appointment = {
+  barberId: string;
+  clientId: string;
+  start: Date;
+  end: Date;
+}
