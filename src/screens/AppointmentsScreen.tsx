@@ -6,7 +6,7 @@ import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
 import { getMockAppointments } from "../mocks/appointments";
-import type { Appointment } from "../types/schedule";
+import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
@@ -33,6 +33,11 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
   const [displayMonth, setDisplayMonth] = useState(new Date());
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
+  const handleSelectDate = (date: Date) => {
+    setSelectedDate(date); 
+    setDisplayMonth(date);
+  };
+  
   useEffect(() => {
     setSelectedStartTime(null);
   }, [selectedDate]);
@@ -46,31 +51,39 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
       />
 
       <ScrollView>
-        <View>
-          <WeekStrip
-            selectedDate={selectedDate}
-            weekStart={weekStart}
-            onSelectDate={setSelectedDate}
-          />
-        </View>
-
-        <View>
-          <MonthHeader
-            month={displayMonth}
-            onPreviousMonth={() => {
-              setDisplayMonth(subMonths(displayMonth, 1));
-            }}
-            onNextMonth={() => {
-              setDisplayMonth(addMonths(displayMonth, 1));
-            }}
+        <View
+          className="px-4 py-3"
+        >
+          <CalendarToggle
+            mode={calendarMode}
+            onChange={setCalendarMode}
           />
         </View>
         <View>
-          <MonthDisplay
-            month={displayMonth}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-          />
+          {calendarMode === "week" ? (
+            <WeekStrip
+              selectedDate={selectedDate}
+              weekStart={weekStart}
+              onSelectDate={handleSelectDate}
+            />
+          ) : (
+            <View>
+              <MonthHeader
+                month={displayMonth}
+                onPreviousMonth={() => {
+                  setDisplayMonth(subMonths(displayMonth, 1));
+                }}
+                onNextMonth={() => {
+                  setDisplayMonth(addMonths(displayMonth, 1));
+                }}
+              />
+              <MonthDisplay
+                month={displayMonth}
+                selectedDate={selectedDate}
+                onSelectDate={handleSelectDate}
+              />
+            </View>
+          )}
         </View>
 
         <View>
