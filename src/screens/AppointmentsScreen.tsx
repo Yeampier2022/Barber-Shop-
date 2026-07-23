@@ -5,6 +5,8 @@ import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
+import { getMockAppointments } from "../mocks/appointments";
+import type { Appointment } from "../types/schedule";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
@@ -20,6 +22,8 @@ const MOCK_SCHEDULE = {
   endHour: 17,
   slotLength: 30,
 }
+
+const appointments = getMockAppointments(new Date()); 
 
 export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNavigate }: AppointmentsScreenProps ) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -68,6 +72,7 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
             startHour={MOCK_SCHEDULE.startHour}
             endHour={MOCK_SCHEDULE.endHour}
             slotLength={MOCK_SCHEDULE.slotLength}
+            appointments={appointments}
             selectedStartTime={selectedStartTime}
             onSlotPress={(slot) => setSelectedStartTime(slot.start)}
           />
