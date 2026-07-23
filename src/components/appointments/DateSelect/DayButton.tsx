@@ -8,7 +8,7 @@ import { View, Text } from "react-native";
 import { colors } from "../../../theme/colors";
 import { fonts } from "../../../theme/fonts";
 import { formatDay, formatWeekday } from "../../../utils/dateUtils";
-import { DayState } from "../../../types/calendar";
+import type { DayState } from "../../../types/calendar";
 
 type DayButtonProps = {
   date: Date;
