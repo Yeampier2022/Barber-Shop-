@@ -1,4 +1,4 @@
-import { set, addMinutes, isEqual, DateArg } from "date-fns";
+import { set, addMinutes, isEqual, format } from "date-fns";
 import { TimeSlot, SlotState } from "../types/schedule";
 
 export function getTimeSlots(
@@ -62,8 +62,8 @@ export function getSlotState(
   return "available";
 }
 
-export function formatTime() {
-
+export function formatTime(time: Date) {
+  return format(time, "h:mm a");
 }
 
 export function filterSlots() {
