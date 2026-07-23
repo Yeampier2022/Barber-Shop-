@@ -27,7 +27,7 @@ const TIME_SLOT_STYLES: Record<SlotState, {
     color: "tertiary",
     textColor: colors.primary,
     disabled: false,
-    className: "flex-1 mx-1 rounded-xl py-2"
+    className: "mx-1 rounded-xl py-2"
   },
   unavailable: { 
     variant: "soft",
