@@ -1,0 +1,1 @@
+import type { Service } from "../types/service";
