@@ -85,6 +85,14 @@ export default function App() {
     return null;
   }
 
+  if (view === "welcome") {
+    return <WelcomeScreen
+      onLogin={() => setView("login")}
+      onRegister={() => setView("register")}
+      onGoogleLogin={handleGoogleSignIn}
+    />;
+  }
+
   if (view === "profile") {
     return (
       <ProfileScreen
