@@ -42,7 +42,7 @@ yarn-error.*
 
 
 # Firebase Credentials
-google-services.json
+#google-services.json
 GoogleService-Info.plist
 *.env
 
