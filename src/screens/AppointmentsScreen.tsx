@@ -51,6 +51,7 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
       />
 
       <ScrollView>
+        <View  className="h-px bg-brand-border my-3" />
         <View
           className="px-4 py-3"
         >
@@ -59,6 +60,7 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
             onChange={setCalendarMode}
           />
         </View>
+        <View  className="h-px bg-brand-border mb-3" />
         <View>
           {calendarMode === "week" ? (
             <WeekStrip
@@ -85,7 +87,7 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
             </View>
           )}
         </View>
-
+        <View  className="h-px bg-brand-border my-4" />
         <View>
           <ScheduleDisplay
             day={selectedDate}

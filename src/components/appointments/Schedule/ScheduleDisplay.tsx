@@ -43,7 +43,7 @@ export function ScheduleDisplay({
 
   return (
     <View>
-      <View className="mx-4 mt-4 mb-2 flex-col items-center">
+      <View className="mx-4 my-2 flex-col items-center">
         <Text
           style={{
             fontFamily: fonts.bold,
@@ -58,7 +58,7 @@ export function ScheduleDisplay({
           style={{
             fontFamily: fonts.medium,
             fontSize: 12,
-            color: colors.tertiary,
+            color: colors.secondary,
           }}
         >
           {formatFullDate(day)}
