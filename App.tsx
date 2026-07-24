@@ -4,6 +4,8 @@ import {
   RobotoSlab_700Bold,
   useFonts,
 } from "@expo-google-fonts/roboto-slab";
+import { signInWithGoogle } from "./src/services/authService";
+import { createUserProfile, getUserProfile } from "./src/services/firestoreService";
 import auth from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import * as SplashScreen from "expo-splash-screen";
@@ -29,6 +31,25 @@ export default function App() {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const hasCheckedInitialAuth = useRef(false);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const user = await signInWithGoogle();
+
+      const profile = await getUserProfile(user.uid);
+      if (!profile) {
+        await createUserProfile(user.uid, {
+          name: user.displayName ?? "Google User",
+          phone: user.phoneNumber ?? "",
+          email: user.email ?? "",
+          role: "client",
+        });
+      }
+      setView("home");
+    } catch (error) {
+      console.error("[Auth] Google sign-in failed:", error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
@@ -96,7 +117,7 @@ export default function App() {
   if (view === "register") {
     return (
       <RegisterScreen
-        onSubmit={() => setView("login")}
+        onSubmit={() => setView("home")}
         onLogin={() => setView("login")}
       />
     );
@@ -114,7 +135,9 @@ export default function App() {
     <WelcomeScreen
       onLogin={() => setView("login")}
       onRegister={() => setView("register")}
-      onGoogleLogin={() => setView("home")}
+      onGoogleLogin={() => {
+        handleGoogleSignIn();
+      }}
     />
   );
 }
