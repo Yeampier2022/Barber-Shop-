@@ -18,6 +18,7 @@ import { WelcomeScreen } from "./src/screens/WelcomeScreen";
 import { AppointmentsScreen } from "./src/screens/AppointmentsScreen";
 import { getInitials } from "./src/utils/formatters";
 import { AppView } from "./src/navigation/AppNavigator";
+import { ServicesScreen } from "./src/screens/ServicesScreen";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -131,13 +132,11 @@ export default function App() {
     );
   }
 
+  if (view === "services")
+
   return (
-    <WelcomeScreen
-      onLogin={() => setView("login")}
-      onRegister={() => setView("register")}
-      onGoogleLogin={() => {
-        handleGoogleSignIn();
-      }}
+    <ServicesScreen
+      onNavigate={(screen) => setView(screen)}
     />
   );
 }
