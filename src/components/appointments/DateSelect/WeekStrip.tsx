@@ -5,8 +5,6 @@ import {
   getNextDays,
   isSameDay,
   createCalendarDays,
-  type CalendarDay,
-  type DayState,
 } from "../../../utils/dateUtils";
 
 type WeekStripProps = {
