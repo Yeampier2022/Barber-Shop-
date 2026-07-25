@@ -5,7 +5,7 @@ import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
-import { ServiceDisplay } from "../components/services/ServiceDisplay";
+import { ServiceSelect } from "../components/appointments/ServiceSelect";
 import { getMockAppointments } from "../mocks/appointments";
 import { mockServices } from "../mocks/services";
 import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
@@ -66,14 +66,10 @@ export function AppointmentsScreen({
 
       <ScrollView className="flex-1 px-3">
         <View className="px-4 py-4">
-          <ServiceDisplay
+          <ServiceSelect
             services={mockServices}
             selectedService={selectedService}
-            onPress={(service) =>
-              onSelectService(
-                selectedService?.id === service.id ? null : service
-              )
-            }
+            onSelectService={onSelectService}
           />
         </View>
         <View  className="h-px bg-brand-border my-3" />
