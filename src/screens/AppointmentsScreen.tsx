@@ -10,10 +10,13 @@ import { CalendarToggle } from "../components/appointments/DateSelect/CalendarTo
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
+import type { Service } from "../types/service";
 
 export interface AppointmentsScreenProps {
   userInitials?: string;
   onAvatarPress?: () => void;
+  selectedService: Service | null;
+  appointmentDuration: number;
   onNavigate: (screen: AppView) => void;
 }
 
@@ -27,7 +30,13 @@ const MOCK_SCHEDULE = {
 
 const appointments = getMockAppointments(new Date()); 
 
-export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNavigate }: AppointmentsScreenProps ) {
+export function AppointmentsScreen({
+  userInitials = "?",
+  onAvatarPress,
+  selectedService,
+  appointmentDuration,
+  onNavigate,
+}: AppointmentsScreenProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(new Date());
   const [displayMonth, setDisplayMonth] = useState(new Date());

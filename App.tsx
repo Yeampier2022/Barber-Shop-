@@ -19,6 +19,8 @@ import { AppointmentsScreen } from "./src/screens/AppointmentsScreen";
 import { getInitials } from "./src/utils/formatters";
 import { AppView } from "./src/navigation/AppNavigator";
 import { ServicesScreen } from "./src/screens/ServicesScreen";
+import type { Service } from "./src/types/service";
+import { calculateDuration } from "./src/utils/serviceUtils";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,8 +32,12 @@ export default function App() {
   });
   const [view, setView] = useState<AppView>("welcome");
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const hasCheckedInitialAuth = useRef(false);
+  const appointmentDuration = selectedService
+    ? calculateDuration([selectedService])
+    : 0;
 
   const handleGoogleSignIn = async () => {
     try {
@@ -135,6 +141,8 @@ export default function App() {
   if (view === "appointments") {
     return (
       <AppointmentsScreen
+        selectedService={selectedService}
+        appointmentDuration={appointmentDuration}
         onNavigate={(screen) => setView(screen)}
       />
     );
@@ -144,6 +152,8 @@ export default function App() {
 
   return (
     <ServicesScreen
+      selectedService={selectedService}
+      onSelectService={setSelectedService}
       onNavigate={(screen) => setView(screen)}
     />
   );

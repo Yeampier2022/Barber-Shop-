@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
 import { View, ScrollView } from "react-native";
 import { ServiceDisplay } from "../components/services/ServiceDisplay";
-import { toggleService, calculateDuration } from "../utils/serviceUtils";
 import { mockServices } from "../mocks/services";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
@@ -11,17 +9,18 @@ import { Service } from "../types/service";
 export interface ServicesScreenProps {
   userInitials?: string;
   onAvatarPress?: () => void;
-  onNavigate: (screen: AppView) => void
+  selectedService: Service | null;
+  onSelectService: (service: Service | null) => void;
+  onNavigate: (screen: AppView) => void;
 }
 
 export function ServicesScreen({
   userInitials = "?",
   onAvatarPress,
+  selectedService,
+  onSelectService,
   onNavigate
 }: ServicesScreenProps) {
-  const [selectedService, setSelectedService] =
-    useState<Service | null>(null);
-
   return (
     <View className="flex-1">
       <Header
@@ -42,9 +41,11 @@ export function ServicesScreen({
           <ServiceDisplay
             services={mockServices}
             selectedService={selectedService}
-            onPress={(service) => setSelectedService((currentService) =>
-              currentService?.id === service.id ? null : service
-            )}
+            onPress={(service) =>
+              onSelectService(
+                selectedService?.id === service.id ? null : service
+              )
+            }
           />
         </View>
       </ScrollView>
