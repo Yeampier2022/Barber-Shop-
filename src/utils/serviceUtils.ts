@@ -1,9 +1,17 @@
 import type { Service, ServiceState } from "../types/service";
 
-export function calculateDuration(services: Service[]): number {
-  return services.reduce(
+const APPOINTMENT_INTERVAL = 15; // minutes
+export function calculateDuration( //Round service duration to the nearest appointment interval for scheduling
+  services: Service[]
+): number {
+  const totalDuration = services.reduce(
     (total, service) => total + service.duration,
     0
+  );
+
+  return (
+    Math.ceil(totalDuration / APPOINTMENT_INTERVAL) *
+    APPOINTMENT_INTERVAL
   );
 }
 
