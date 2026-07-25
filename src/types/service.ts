@@ -5,3 +5,7 @@ export type Service = {
   duration: number;
   price: number;
 };
+
+export type ServiceState =
+  | "default"
+  | "selected";
