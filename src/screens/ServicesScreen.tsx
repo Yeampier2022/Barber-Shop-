@@ -65,7 +65,7 @@ export function ServicesScreen({
       <Button
         variant="solid"
         size="md"
-        className="w-[90%] mx-auto my-4"
+        className=" mx-6 my-3"
         disabled={!selectedService}
         onPress={() => onNavigate("appointments")}
       >
