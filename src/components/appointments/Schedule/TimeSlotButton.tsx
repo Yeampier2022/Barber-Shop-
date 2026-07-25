@@ -57,7 +57,7 @@ export function TimeSlotButton({
       color={style.color}
       size="sm"
       disabled={style.disabled}
-      className= "mx-1 rounded-xl py-2 my-0.5 w-[23%]"
+      className= "mx-1 rounded-xl py-2 my-0.5 w-[22%]"
       onPress={onPress}
     >
       <Text

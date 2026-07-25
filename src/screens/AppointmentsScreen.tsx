@@ -43,14 +43,14 @@ export function AppointmentsScreen({ userInitials = "?", onAvatarPress, onNaviga
   }, [selectedDate]);
   
   return ( 
-    <View>
+    <View className="flex-1">
       <Header
         isAuthenticated
         userInitials={userInitials}
         onAvatarPress={onAvatarPress}
       />
 
-      <ScrollView>
+      <ScrollView className="flex-1 px-3">
         <View  className="h-px bg-brand-border my-3" />
         <View
           className="px-4 py-3"
