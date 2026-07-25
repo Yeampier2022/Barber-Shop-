@@ -24,7 +24,7 @@ export function getMockAppointments(day: Date): Appointment[] {
       }),
     },
     {
-      barberId: "barber-1",
+      barberId: "barber-2",
       clientId: "client-2",
       start: set(day, {
         hours: 11,
@@ -56,7 +56,7 @@ export function getMockAppointments(day: Date): Appointment[] {
       }),
     },
     {
-      barberId: "barber-1",
+      barberId: "barber-2",
       clientId: "client-4",
       start: set(tomorrow, {
         hours: 10,
@@ -104,7 +104,7 @@ export function getMockAppointments(day: Date): Appointment[] {
       }),
     },
     {
-      barberId: "barber-1",
+      barberId: "barber-2",
       clientId: "client-7",
       start: set(twoDaysFromNow, {
         hours: 15,
@@ -120,7 +120,7 @@ export function getMockAppointments(day: Date): Appointment[] {
       }),
     },
     {
-      barberId: "barber-1",
+      barberId: "barber-2",
       clientId: "client-8",
       start: set(threeDaysFromNow, {
         hours: 11,
