@@ -7,6 +7,7 @@ import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
 import { ServiceSelect } from "../components/appointments/ServiceSelect";
 import { BarberSelect } from "../components/appointments/BarberSelect";
+import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
 import { getMockAppointments } from "../mocks/appointments";
 import { mockServices } from "../mocks/services";
 import { mockBarbers } from "../mocks/barbers";
@@ -16,6 +17,7 @@ import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
 import type { Service } from "../types/service";
 import type { Barber } from "../types/barber";
+import { Button } from "../components";
 
 export interface AppointmentsScreenProps {
   userInitials?: string;
@@ -50,13 +52,15 @@ export function AppointmentsScreen({
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
+  const [isReviewVisible, setIsReviewVisible] = useState(false);
   const barberAppointments = selectedBarber
     ? appointments.filter(
-        (appointment) => appointment.barberId === selectedBarber.id
-      )
+      (appointment) => appointment.barberId === selectedBarber.id
+    )
     : [];
+  
   const handleSelectDate = (date: Date) => {
-    setSelectedDate(date); 
+    setSelectedDate(date);
     setDisplayMonth(date);
   };
   
@@ -65,7 +69,7 @@ export function AppointmentsScreen({
   }, [selectedDate, selectedService?.id, selectedBarber?.id]);
 
   
-  return ( 
+  return (
     <View className="flex-1">
       <Header
         isAuthenticated
@@ -88,7 +92,7 @@ export function AppointmentsScreen({
             />
           </View>
         </View>
-        <View  className="h-px bg-brand-border my-3" />
+        <View className="h-px bg-brand-border my-3" />
         <View
           className="px-4 py-3"
         >
@@ -97,7 +101,7 @@ export function AppointmentsScreen({
             onChange={setCalendarMode}
           />
         </View>
-        <View  className="h-px bg-brand-border mb-3" />
+        <View className="h-px bg-brand-border mb-3" />
         <View>
           {calendarMode === "week" ? (
             <WeekStrip
@@ -124,7 +128,7 @@ export function AppointmentsScreen({
             </View>
           )}
         </View>
-        <View  className="h-px bg-brand-border my-4" />
+        <View className="h-px bg-brand-border my-4" />
         <View>
           {selectedService && selectedBarber ? (
             <ScheduleDisplay
@@ -138,16 +142,46 @@ export function AppointmentsScreen({
               onSlotPress={(slot) => setSelectedStartTime(slot.start)}
             />
           ) : (
-              <Text className="py-6 text-center font-roboto-slab-medium text-brand-tertiary">
-                Select a service and barber to view available times.
-              </Text>
+            <Text className="py-6 text-center font-roboto-slab-medium text-brand-tertiary">
+              Select a service and barber to view available times.
+            </Text>
           )}
         </View>
       </ScrollView>
+
+      <View className="border-t border-brand-border bg-white px-6 py-3">
+        <Button
+          variant="solid"
+          size="md"
+          fullWidth
+          onPress={() => setIsReviewVisible(true)}
+          disabled={!selectedStartTime || !selectedService || !selectedBarber}
+        >
+          Review Order
+        </Button>
+      </View>
+      {selectedService &&
+        selectedBarber &&
+        selectedStartTime && (
+          <OrderSummaryModal
+            visible={isReviewVisible}
+            service={selectedService}
+            barber={selectedBarber}
+            date={selectedDate}
+            startTime={selectedStartTime}
+            duration={appointmentDuration}
+            onClose={() => setIsReviewVisible(false)}
+            onConfirm={() => {
+              console.log("Confirm appointment");
+              setIsReviewVisible(false);
+            }}
+          />
+        )}
+
       <BottomNav
         active="Appointments"
         onChange={(tab) => onNavigate(tab.toLowerCase() as AppView)}
       />
     </View>
-  )
+  );
 }
