@@ -5,7 +5,8 @@ export function getTimeSlots(
   day: Date,
   startHour: number,
   endHour: number,
-  slotLength: number,
+  intervalLength: number,
+  appointmentDuration: number
 ): TimeSlot[] {
   
   const start = set(day, { // Set start of day, clear minutes and seconds
@@ -25,16 +26,19 @@ export function getTimeSlots(
   let current = start;
 
   while (current < end) {
-    const slotEnd = addMinutes(current, slotLength);
-    if (slotEnd > end) {
+    const appointmentEnd = addMinutes(
+      current,
+      appointmentDuration
+    );
+    if (appointmentEnd > end) {
       break;
     }
     slots.push({
       start: current,
-      end: slotEnd,
+      end: appointmentEnd,
       isBookable: true
     });
-    current = slotEnd;
+    current = addMinutes(current, intervalLength);
   }
   return slots;
 }

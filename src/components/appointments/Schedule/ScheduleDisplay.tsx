@@ -12,6 +12,7 @@ type ScheduleDisplayProps = {
   endHour: number;
   slotLength: number;
   appointments: Appointment[];
+  appointmentDuration: number;
   selectedStartTime: Date | null;
   onSlotPress: (slot: TimeSlot) => void;
 };
@@ -22,6 +23,7 @@ export function ScheduleDisplay({
   endHour,
   slotLength,
   appointments,
+  appointmentDuration,
   selectedStartTime,
   onSlotPress,
 }: ScheduleDisplayProps) {
@@ -30,7 +32,8 @@ export function ScheduleDisplay({
     day,
     startHour,
     endHour,
-    slotLength
+    slotLength,
+    appointmentDuration
   );
 
   const openSlots = applyAppointments(
