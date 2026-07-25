@@ -5,18 +5,22 @@ import { View } from "react-native";
 
 type ServiceDisplayProps = {
   services: Service[];
-  selectedServices: Service[];
+  selectedService: Service | null;
   onPress: (service: Service) => void;
 };
 
-export function ServiceDisplay({ services, selectedServices, onPress }: ServiceDisplayProps) {
+export function ServiceDisplay({
+  services,
+  selectedService,
+  onPress
+}: ServiceDisplayProps) {
   return (
     <View style={{ gap: 12 }}>
       {services.map((service) => (
         <ServiceCard
           key={service.id}
           service={service}
-          state={getServiceState(service, selectedServices)}
+          state={getServiceState(service, selectedService)}
           onPress={() => onPress(service)}
         />
       ))}

@@ -20,9 +20,9 @@ export function toggleService(
 
 export function getServiceState(
   service: Service,
-  selectedServices: Service[]
+  selectedServices: Service | null
 ): ServiceState {
-  const isSelected = selectedServices.some(
-    (selectedService) => selectedService.id === service.id);
-  return isSelected ? "selected" : "default";
+  return selectedServices?.id === service.id
+    ? "selected"
+    : "default";
 }

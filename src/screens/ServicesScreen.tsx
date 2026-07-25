@@ -19,11 +19,8 @@ export function ServicesScreen({
   onAvatarPress,
   onNavigate
 }: ServicesScreenProps) {
-  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    setSelectedServices([]);
-  }, []);
+  const [selectedService, setSelectedService] =
+    useState<Service | null>(null);
 
   return (
     <View className="flex-1">
@@ -44,11 +41,10 @@ export function ServicesScreen({
         <View className="flex-1 px-6 pt-6" style={{ gap: 16 }}>
           <ServiceDisplay
             services={mockServices}
-            selectedServices={selectedServices}
-            onPress={(service) => {
-              setSelectedServices((currentServices) =>
-                toggleService(currentServices, service));
-            }}
+            selectedService={selectedService}
+            onPress={(service) => setSelectedService((currentService) =>
+              currentService?.id === service.id ? null : service
+            )}
           />
         </View>
       </ScrollView>
