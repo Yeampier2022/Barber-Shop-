@@ -143,6 +143,7 @@ export default function App() {
       <AppointmentsScreen
         selectedService={selectedService}
         appointmentDuration={appointmentDuration}
+        onSelectService={setSelectedService}
         onNavigate={(screen) => setView(screen)}
       />
     );

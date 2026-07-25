@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Text } from "react-native";
 import { subMonths, addMonths } from "date-fns";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
+import { ServiceDisplay } from "../components/services/ServiceDisplay";
 import { getMockAppointments } from "../mocks/appointments";
+import { mockServices } from "../mocks/services";
 import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
@@ -17,6 +19,7 @@ export interface AppointmentsScreenProps {
   onAvatarPress?: () => void;
   selectedService: Service | null;
   appointmentDuration: number;
+  onSelectService: (service: Service | null) => void;
   onNavigate: (screen: AppView) => void;
 }
 
@@ -35,6 +38,7 @@ export function AppointmentsScreen({
   onAvatarPress,
   selectedService,
   appointmentDuration,
+  onSelectService,
   onNavigate,
 }: AppointmentsScreenProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -49,7 +53,8 @@ export function AppointmentsScreen({
   
   useEffect(() => {
     setSelectedStartTime(null);
-  }, [selectedDate]);
+  }, [selectedDate, selectedService?.id]);
+
   
   return ( 
     <View className="flex-1">
@@ -60,6 +65,17 @@ export function AppointmentsScreen({
       />
 
       <ScrollView className="flex-1 px-3">
+        <View className="px-4 py-4">
+          <ServiceDisplay
+            services={mockServices}
+            selectedService={selectedService}
+            onPress={(service) =>
+              onSelectService(
+                selectedService?.id === service.id ? null : service
+              )
+            }
+          />
+        </View>
         <View  className="h-px bg-brand-border my-3" />
         <View
           className="px-4 py-3"
@@ -98,15 +114,22 @@ export function AppointmentsScreen({
         </View>
         <View  className="h-px bg-brand-border my-4" />
         <View>
-          <ScheduleDisplay
-            day={selectedDate}
-            startHour={MOCK_SCHEDULE.startHour}
-            endHour={MOCK_SCHEDULE.endHour}
-            slotLength={MOCK_SCHEDULE.slotLength}
-            appointments={appointments}
-            selectedStartTime={selectedStartTime}
-            onSlotPress={(slot) => setSelectedStartTime(slot.start)}
-          />
+          {selectedService ? (
+            <ScheduleDisplay
+              day={selectedDate}
+              startHour={MOCK_SCHEDULE.startHour}
+              endHour={MOCK_SCHEDULE.endHour}
+              slotLength={MOCK_SCHEDULE.slotLength}
+              appointments={appointments}
+              appointmentDuration={appointmentDuration}
+              selectedStartTime={selectedStartTime}
+              onSlotPress={(slot) => setSelectedStartTime(slot.start)}
+            />
+          ) : (
+              <Text className="py-6 text-center font-roboto-slab-medium text-brand-tertiary">
+                Select a service to view available times.
+              </Text>
+          )}
         </View>
       </ScrollView>
       <BottomNav
