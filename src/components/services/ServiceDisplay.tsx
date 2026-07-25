@@ -1,5 +1,6 @@
 import { ServiceCard } from "./ServiceCard";
 import type { Service } from "../../types/service";
+import { getServiceState } from "../../utils/serviceUtils";
 import { View } from "react-native";
 
 type ServiceDisplayProps = {
@@ -10,12 +11,12 @@ type ServiceDisplayProps = {
 
 export function ServiceDisplay({ services, selectedServices, onPress }: ServiceDisplayProps) {
   return (
-    <View className="flex-row flex-wrap justify-between">
+    <View style={{ gap: 12 }}>
       {services.map((service) => (
         <ServiceCard
           key={service.id}
           service={service}
-          selected={selectedServices.some((selectedService) => selectedService.id === service.id)}
+          state={getServiceState(service, selectedServices)}
           onPress={() => onPress(service)}
         />
       ))}
