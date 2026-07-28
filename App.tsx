@@ -34,17 +34,37 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [bookings, setBookings] = useState<any[]>([]);
 
-  useEffect(() => {
-    const bookingsRef = db.collection('bookings').orderBy('datetime', 'asc');
-    const unsubscribe = bookingsRef.onSnapshot((snapshot: any) => {
+  const fetchBookings = async () => {
+    try {
+      const bookingsRef = db.collection('bookings').orderBy('datetime', 'asc');
+      if (typeof bookingsRef.onSnapshot === 'function') {
+        return;
+      }
+
+      const snapshot = await bookingsRef.get();
       const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
       setBookings(data);
-    }, (error: any) => {
+    } catch (error: any) {
       console.warn('Error loading bookings:', error);
       Alert.alert('Error', 'No se pudieron cargar las reservas.');
-    });
+    }
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    const bookingsRef = db.collection('bookings').orderBy('datetime', 'asc');
+    if (typeof bookingsRef.onSnapshot === 'function') {
+      const unsubscribe = bookingsRef.onSnapshot((snapshot: any) => {
+        const data = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+        setBookings(data);
+      }, (error: any) => {
+        console.warn('Error loading bookings:', error);
+        Alert.alert('Error', 'No se pudieron cargar las reservas.');
+      });
+
+      return () => unsubscribe();
+    }
+
+    fetchBookings();
   }, []);
 
   const parsedDate = useMemo(() => {
@@ -76,6 +96,8 @@ export default function App() {
         createdAt: new Date(),
       });
 
+      await fetchBookings();
+
       setName('');
       setPhone('');
       setDate('');
@@ -91,94 +113,165 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        <Text>Reserva tu corte</Text>
-        <Text>
-          Completa el formulario para agendar tu cita y la guardaremos en Firebase.
-        </Text>
-
-        <View>
-          <View>
-            <Text>Nombre</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Tu nombre"
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
-
-          <View>
-            <Text>Teléfono</Text>
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="Ej. 123456789"
-              placeholderTextColor="#94a3b8"
-              keyboardType="phone-pad"
-            />
-          </View>
-
-          <View>
-            <Text>Servicio</Text>
-            <View>
-              {services.map(option => (
-                <TouchableOpacity
-                  key={option}
-                  onPress={() => setService(option)}>
-                  <Text>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View>
-            <Text>Fecha (YYYY-MM-DD)</Text>
-            <TextInput
-              value={date}
-              onChangeText={setDate}
-              placeholder="2026-07-25"
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
-
-          <View>
-            <Text>Hora (HH:MM)</Text>
-            <TextInput
-              value={time}
-              onChangeText={setTime}
-              placeholder="14:30"
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
-
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={loading}>
-            {loading ? (
-              <ActivityIndicator />
-            ) : (
-              <Text>Guardar cita</Text>
-            )}
-          </TouchableOpacity>
+    <SafeAreaView className="flex-1 bg-slate-50">
+      <ScrollView contentContainerStyle={{ paddingBottom: 32 }} className="bg-slate-50">
+        {/* Header Section */}
+        <View className="bg-gradient-to-b from-blue-900 to-blue-800 px-6 py-8">
+          <Text className="text-4xl font-bold text-white mb-2">✂️ Tu Barbería</Text>
+          <Text className="text-lg text-blue-100">
+            Reserva tu corte de forma fácil y rápida
+          </Text>
         </View>
 
-        <View>
-          <Text>Citas próximas</Text>
-          {bookings.length === 0 ? (
-            <Text>No hay reservas todavía. Agrega una cita arriba.</Text>
-          ) : (
-            bookings.map(booking => (
-              <View key={booking.id}>
-                <Text>{booking.name}</Text>
-                <Text>{booking.service}</Text>
-                <Text>{booking.phone}</Text>
-                <Text>{booking.datetime ? formatDate(new Date(booking.datetime.seconds ? booking.datetime.toDate() : booking.datetime)) : 'Fecha no disponible'}</Text>
+        {/* Booking Form Section */}
+        <View className="px-6 py-8">
+          <Text className="text-2xl font-bold text-slate-900 mb-6">Nueva Reserva</Text>
+          
+          <View className="bg-white rounded-lg shadow-md p-6 space-y-6">
+            {/* Name Input */}
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-2">Nombre</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="Tu nombre"
+                placeholderTextColor="#cbd5e1"
+                className="border-2 border-slate-200 rounded-lg px-4 py-3 text-base text-slate-900 bg-slate-50"
+              />
+            </View>
+
+            {/* Phone Input */}
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-2">Teléfono</Text>
+              <TextInput
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="Ej. 123456789"
+                placeholderTextColor="#cbd5e1"
+                keyboardType="phone-pad"
+                className="border-2 border-slate-200 rounded-lg px-4 py-3 text-base text-slate-900 bg-slate-50"
+              />
+            </View>
+
+            {/* Service Selection */}
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-3">Servicio</Text>
+              <View className="flex-row gap-2">
+                {services.map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    onPress={() => setService(option)}
+                    className={`flex-1 py-3 px-2 rounded-lg border-2 ${
+                      service === option
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'bg-slate-100 border-slate-200'
+                    }`}>
+                    <Text className={`text-center font-semibold ${
+                      service === option ? 'text-white' : 'text-slate-700'
+                    }`}>
+                      {option}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-            ))
+            </View>
+
+            {/* Date Input */}
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-2">Fecha</Text>
+              <TextInput
+                value={date}
+                onChangeText={setDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#cbd5e1"
+                className="border-2 border-slate-200 rounded-lg px-4 py-3 text-base text-slate-900 bg-slate-50"
+              />
+              <Text className="text-xs text-slate-500 mt-1">Formato: 2026-07-25</Text>
+            </View>
+
+            {/* Time Input */}
+            <View>
+              <Text className="text-sm font-semibold text-slate-700 mb-2">Hora</Text>
+              <TextInput
+                value={time}
+                onChangeText={setTime}
+                placeholder="HH:MM"
+                placeholderTextColor="#cbd5e1"
+                className="border-2 border-slate-200 rounded-lg px-4 py-3 text-base text-slate-900 bg-slate-50"
+              />
+              <Text className="text-xs text-slate-500 mt-1">Formato: 14:30</Text>
+            </View>
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={loading}
+              className={`py-4 px-6 rounded-lg ${
+                loading ? 'bg-blue-400' : 'bg-blue-600'
+              }`}>
+              {loading ? (
+                <View className="flex-row justify-center items-center gap-2">
+                  <ActivityIndicator color="white" />
+                  <Text className="text-white font-bold text-base">Guardando...</Text>
+                </View>
+              ) : (
+                <Text className="text-white font-bold text-base text-center">
+                  Guardar Cita
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Bookings Section */}
+        <View className="px-6 py-8">
+          <Text className="text-2xl font-bold text-slate-900 mb-6">
+            📅 Citas Próximas ({bookings.length})
+          </Text>
+          
+          {bookings.length === 0 ? (
+            <View className="bg-amber-50 border-2 border-amber-200 rounded-lg p-6 items-center">
+              <Text className="text-lg font-semibold text-amber-900 mb-2">
+                Sin reservas aún
+              </Text>
+              <Text className="text-amber-700 text-center">
+                Agrega tu primera cita usando el formulario arriba
+              </Text>
+            </View>
+          ) : (
+            <View className="gap-3">
+              {bookings.map(booking => (
+                <View 
+                  key={booking.id}
+                  className="bg-white border-l-4 border-blue-600 rounded-lg p-4 shadow-sm">
+                  <View className="flex-row justify-between items-start mb-3">
+                    <View className="flex-1">
+                      <Text className="text-lg font-bold text-slate-900">
+                        {booking.name}
+                      </Text>
+                      <Text className="text-blue-600 font-semibold text-base mt-1">
+                        {booking.service}
+                      </Text>
+                    </View>
+                    <View className="bg-green-100 px-3 py-1 rounded-full">
+                      <Text className="text-green-700 text-xs font-bold">CONFIRMADO</Text>
+                    </View>
+                  </View>
+                  <View className="gap-2 border-t border-slate-200 pt-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-slate-600 text-sm">📞</Text>
+                      <Text className="text-slate-600 font-medium">{booking.phone}</Text>
+                    </View>
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-slate-600 text-sm">🕐</Text>
+                      <Text className="text-slate-600 font-medium">
+                        {booking.datetime ? formatDate(new Date(booking.datetime.seconds ? booking.datetime.toDate() : booking.datetime)) : 'Fecha no disponible'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
           )}
         </View>
       </ScrollView>
