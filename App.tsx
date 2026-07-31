@@ -91,6 +91,9 @@ export default function App() {
     return null;
   }
 
+  const userInitials = getInitials(auth().currentUser?.displayName ?? user?.displayName);
+  const handleAvatarPress = () => setView("profile");
+
   if (view === "welcome") {
     return <WelcomeScreen
       onLogin={() => setView("login")}
@@ -111,8 +114,8 @@ export default function App() {
   if (view === "home") {
     return (
       <HomeScreen
-        userInitials={getInitials(auth().currentUser?.displayName ?? user?.displayName)}
-        onAvatarPress={() => setView("profile")}
+        userInitials={userInitials}
+        onAvatarPress={handleAvatarPress}
         onNavigate={(screen) => {
           setView(screen);
         }}
@@ -141,6 +144,8 @@ export default function App() {
   if (view === "appointments") {
     return (
       <AppointmentsScreen
+        userInitials={userInitials}
+        onAvatarPress={handleAvatarPress}
         selectedService={selectedService}
         appointmentDuration={appointmentDuration}
         onSelectService={setSelectedService}
@@ -149,10 +154,10 @@ export default function App() {
     );
   }
 
-  if (view === "services")
-
   return (
     <ServicesScreen
+      userInitials={userInitials}
+      onAvatarPress={handleAvatarPress}
       selectedService={selectedService}
       onSelectService={setSelectedService}
       onNavigate={(screen) => setView(screen)}
