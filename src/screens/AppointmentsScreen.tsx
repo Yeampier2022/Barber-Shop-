@@ -94,6 +94,7 @@ export function AppointmentsScreen({
       endTime,
       durationMinutes: appointmentDuration,
       price: selectedService.price,
+      isConfirmed: false
     });
 
     console.log("Appointment Created:", appointmentId);

@@ -6,4 +6,5 @@ export type CreateAppointmentInput  = {
   endTime: Date;
   durationMinutes: number;
   price: number;
+  isConfirmed: boolean;
 }
