@@ -1,7 +1,9 @@
-type AppointmentSummary = {
-  barberId?: string;
-  serviceIds?: string[];
-  clientId?: string;
-  date?: Date;
-  startTime?: Date;
+export type CreateAppointmentInput  = {
+  clientId: string;
+  barberId: string;
+  serviceId: string
+  startTime: Date;
+  endTime: Date;
+  durationMinutes: number;
+  price: number;
 }

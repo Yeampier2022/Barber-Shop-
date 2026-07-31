@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { View, ScrollView, Text } from "react-native";
-import { subMonths, addMonths } from "date-fns";
+import auth from "@react-native-firebase/auth";
+import { createAppointment } from "../services/firestoreService";
+import { subMonths, addMonths, addMinutes } from "date-fns";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
@@ -38,6 +40,9 @@ const MOCK_SCHEDULE = {
 
 const appointments = getMockAppointments(new Date()); 
 
+
+
+
 export function AppointmentsScreen({
   userInitials = "?",
   onAvatarPress,
@@ -53,6 +58,8 @@ export function AppointmentsScreen({
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
   const [isReviewVisible, setIsReviewVisible] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const barberAppointments = selectedBarber
     ? appointments.filter(
       (appointment) => appointment.barberId === selectedBarber.id
@@ -63,12 +70,40 @@ export function AppointmentsScreen({
     setSelectedDate(date);
     setDisplayMonth(date);
   };
+
+  const handleConfirmAppointment = async () => {
+    const currentUser = auth().currentUser;
+
+    if (
+      !currentUser ||
+      !selectedService ||
+      !selectedBarber ||
+      !selectedStartTime
+    ) {
+      return;
+    }
+    const endTime = addMinutes(
+      selectedStartTime,
+      appointmentDuration
+    );
+    const appointmentId = await createAppointment({
+      clientId: currentUser.uid,
+      barberId: selectedBarber.id,
+      serviceId: selectedService.id,
+      startTime: selectedStartTime,
+      endTime,
+      durationMinutes: appointmentDuration,
+      price: selectedService.price,
+    });
+
+    console.log("Appointment Created:", appointmentId);
+    setIsReviewVisible(false);  
+  }
   
   useEffect(() => {
     setSelectedStartTime(null);
   }, [selectedDate, selectedService?.id, selectedBarber?.id]);
 
-  
   return (
     <View className="flex-1">
       <Header
@@ -171,10 +206,7 @@ export function AppointmentsScreen({
             startTime={selectedStartTime}
             duration={appointmentDuration}
             onClose={() => setIsReviewVisible(false)}
-            onConfirm={() => {
-              console.log("Confirm appointment");
-              setIsReviewVisible(false);
-            }}
+            onConfirm={handleConfirmAppointment}
           />
         )}
 
