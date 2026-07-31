@@ -74,6 +74,21 @@ export function formatMonth(date: Date) {
     return format(date, "MMMM yyyy"); // July 2026
 }
 
+export function formatTime(date: Date) {
+    return format(date, "h:mm a"); // 9:30 AM
+}
+
+// Heading for a grouped-by-day list: "Today", "Tomorrow", or the full date.
+export function formatDayHeading(date: Date) {
+    if (isToday(date)) {
+        return "Today";
+    }
+    if (isSameDay(date, addDays(new Date(), 1))) {
+        return "Tomorrow";
+    }
+    return formatFullDate(date);
+}
+
 export function getDayState(
     day: CalendarDay,
     selectedDate: Date,
