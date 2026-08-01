@@ -15,8 +15,10 @@ type OrderSummaryModalProps = {
   date: Date;
   startTime: Date;
   duration: number;
+  isSubmitting: boolean;
+  submitError: string | null;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
 };
 
 type SummaryRowProps = {
@@ -61,6 +63,8 @@ export function OrderSummaryModal({
   date,
   startTime,
   duration,
+  isSubmitting,
+  submitError,
   onClose,
   onConfirm,
 }: OrderSummaryModalProps) {
@@ -98,18 +102,33 @@ export function OrderSummaryModal({
             <SummaryRow label="Total" value={`$${service.price}`} />
           </View>
 
+          {submitError ? (
+            <Text
+              className="mt-3 text-center"
+              style={{
+                color: colors.secondary,
+                fontFamily: fonts.medium,
+                fontSize: 14,
+              }}
+            >
+              {submitError}
+            </Text>
+          ) : null}
+
           <View className="mt-6" style={{ gap: 12 }}>
             <Button
               size="md"
               fullWidth
+              loading={isSubmitting}
               onPress={onConfirm}
             >
-              Confirm Appointment
+              {isSubmitting ? "Booking..." : "Confirm Appointment"}
             </Button>
             <Button
               size="md"
               variant="outline"
               fullWidth
+              disabled={isSubmitting}
               onPress={onClose}
             >
               Make Changes
@@ -118,5 +137,5 @@ export function OrderSummaryModal({
         </View>
       </View>
     </Modal>
-  )
+  );
 }
