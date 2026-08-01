@@ -40,9 +40,6 @@ const MOCK_SCHEDULE = {
 
 const appointments = getMockAppointments(new Date()); 
 
-
-
-
 export function AppointmentsScreen({
   userInitials = "?",
   onAvatarPress,
@@ -58,7 +55,7 @@ export function AppointmentsScreen({
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
   const [isReviewVisible, setIsReviewVisible] = useState(false);
-  const [isSubmitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const barberAppointments = selectedBarber
     ? appointments.filter(
@@ -75,6 +72,7 @@ export function AppointmentsScreen({
     const currentUser = auth().currentUser;
 
     if (
+      isSubmitting ||
       !currentUser ||
       !selectedService ||
       !selectedBarber ||
@@ -82,27 +80,40 @@ export function AppointmentsScreen({
     ) {
       return;
     }
+
     const endTime = addMinutes(
       selectedStartTime,
       appointmentDuration
     );
-    const appointmentId = await createAppointment({
-      clientId: currentUser.uid,
-      barberId: selectedBarber.id,
-      serviceId: selectedService.id,
-      startTime: selectedStartTime,
-      endTime,
-      durationMinutes: appointmentDuration,
-      price: selectedService.price,
-      isConfirmed: false
-    });
 
-    console.log("Appointment Created:", appointmentId);
-    setIsReviewVisible(false);  
-  }
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const appointmentId = await createAppointment({
+        clientId: currentUser.uid,
+        barberId: selectedBarber.id,
+        serviceId: selectedService.id,
+        startTime: selectedStartTime,
+        endTime,
+        durationMinutes: appointmentDuration,
+        price: selectedService.price,
+      });
+
+      console.log("Appointment Created:", appointmentId);
+      setIsReviewVisible(false);
+      setSelectedStartTime(null);
+    } catch (error) {
+      console.error("[Appointments] Creation failed:", error);
+      setSubmitError("We couldn't book that appointment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   useEffect(() => {
     setSelectedStartTime(null);
+    setSubmitError(null);
   }, [selectedDate, selectedService?.id, selectedBarber?.id]);
 
   return (
@@ -206,7 +217,12 @@ export function AppointmentsScreen({
             date={selectedDate}
             startTime={selectedStartTime}
             duration={appointmentDuration}
-            onClose={() => setIsReviewVisible(false)}
+            isSubmitting={isSubmitting}
+            submitError={submitError}
+            onClose={() => {
+              setSubmitError(null);
+              setIsReviewVisible(false);
+            }}
             onConfirm={handleConfirmAppointment}
           />
         )}
