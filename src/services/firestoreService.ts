@@ -1,6 +1,22 @@
-import { doc, addDoc, getDoc, setDoc, collection, getFirestore, serverTimestamp, Timestamp, } from "@react-native-firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getFirestore,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+} from "@react-native-firebase/firestore";
 import type { RegisterInput, UserProfile } from "../types/user";
-import { CreateAppointmentInput } from "../types/appointment";
+import type {
+  AppointmentStatus,
+  ConfirmationStatus,
+  CreateAppointmentInput,
+} from "../types/appointment";
+
+const INITIAL_APPOINTMENT_STATUS: AppointmentStatus = "scheduled";
+const INITIAL_CONFIRMATION_STATUS: ConfirmationStatus = "pending";
 
 export async function createUserProfile(
   uid: string,
@@ -39,8 +55,11 @@ export async function createAppointment(input: CreateAppointmentInput) {
       endTime: Timestamp.fromDate(input.endTime),
       durationMinutes: input.durationMinutes,
       price: input.price,
+      status: INITIAL_APPOINTMENT_STATUS,
+      confirmationStatus: INITIAL_CONFIRMATION_STATUS,
       createdAt: serverTimestamp(),
-    });
+    }
+  );
   console.log("[Firestore] Appointment created at appointments/" + appointmentRef.id);
   return appointmentRef.id;
 }
