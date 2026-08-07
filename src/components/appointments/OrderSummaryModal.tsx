@@ -15,6 +15,7 @@ type OrderSummaryModalProps = {
   date: Date;
   startTime: Date;
   duration: number;
+  confirming?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 };
@@ -61,6 +62,7 @@ export function OrderSummaryModal({
   date,
   startTime,
   duration,
+  confirming = false,
   onClose,
   onConfirm,
 }: OrderSummaryModalProps) {
@@ -102,6 +104,8 @@ export function OrderSummaryModal({
             <Button
               size="md"
               fullWidth
+              loading={confirming}
+              disabled={confirming}
               onPress={onConfirm}
             >
               Confirm Appointment
@@ -110,6 +114,7 @@ export function OrderSummaryModal({
               size="md"
               variant="outline"
               fullWidth
+              disabled={confirming}
               onPress={onClose}
             >
               Make Changes

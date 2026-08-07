@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { View, ScrollView, Text } from "react-native";
-import { subMonths, addMonths } from "date-fns";
+import { Alert, View, ScrollView, Text } from "react-native";
+import { subMonths, addMonths, addMinutes } from "date-fns";
+import { getAuth } from "@react-native-firebase/auth";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
@@ -10,7 +11,7 @@ import { BarberSelect } from "../components/appointments/BarberSelect";
 import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
 import { getMockAppointments } from "../mocks/appointments";
 import { mockServices } from "../mocks/services";
-import { mockBarbers } from "../mocks/barbers";
+import { createAppointment, getBarbers } from "../services/firestoreService";
 import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
@@ -53,22 +54,71 @@ export function AppointmentsScreen({
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("week");
   const [isReviewVisible, setIsReviewVisible] = useState(false);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [isBooking, setIsBooking] = useState(false);
   const barberAppointments = selectedBarber
     ? appointments.filter(
       (appointment) => appointment.barberId === selectedBarber.id
     )
     : [];
-  
+
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
     setDisplayMonth(date);
   };
-  
+
   useEffect(() => {
     setSelectedStartTime(null);
   }, [selectedDate, selectedService?.id, selectedBarber?.id]);
 
-  
+  useEffect(() => {
+    getBarbers()
+      .then((barberProfiles) => {
+        setBarbers(
+          barberProfiles.map((profile) => ({
+            id: profile.uid,
+            name: profile.name,
+            phone: profile.phone,
+          }))
+        );
+      })
+      .catch((error) => {
+        console.error("[Appointments] Could not load barbers:", error);
+      });
+  }, []);
+
+  async function handleConfirm() {
+    const currentUser = getAuth().currentUser;
+    if (!selectedService || !selectedBarber || !selectedStartTime || !currentUser) {
+      return;
+    }
+
+    setIsBooking(true);
+    try {
+      await createAppointment({
+        barberId: selectedBarber.id,
+        clientId: currentUser.uid,
+        serviceId: selectedService.id,
+        price: selectedService.price,
+        durationMinutes: appointmentDuration,
+        startTime: selectedStartTime,
+        endTime: addMinutes(selectedStartTime, appointmentDuration),
+      });
+
+      setIsReviewVisible(false);
+      Alert.alert("Appointment requested", "We'll let you know once the barber confirms it.");
+      setSelectedStartTime(null);
+      onSelectService(null);
+      setSelectedBarber(null);
+    } catch (error) {
+      console.error("[Appointments] Could not create appointment:", error);
+      Alert.alert("Something went wrong", "Could not book the appointment. Please try again.");
+    } finally {
+      setIsBooking(false);
+    }
+  }
+
+
   return (
     <View className="flex-1">
       <Header
@@ -86,7 +136,7 @@ export function AppointmentsScreen({
           />
           <View className="mt-5">
             <BarberSelect
-              barbers={mockBarbers}
+              barbers={barbers}
               selectedBarber={selectedBarber}
               onSelectBarber={setSelectedBarber}
             />
@@ -170,11 +220,9 @@ export function AppointmentsScreen({
             date={selectedDate}
             startTime={selectedStartTime}
             duration={appointmentDuration}
+            confirming={isBooking}
             onClose={() => setIsReviewVisible(false)}
-            onConfirm={() => {
-              console.log("Confirm appointment");
-              setIsReviewVisible(false);
-            }}
+            onConfirm={handleConfirm}
           />
         )}
 
