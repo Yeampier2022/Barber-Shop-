@@ -9,8 +9,10 @@ import type {
   Barber,
   BarberState,
 } from "../../types/barber";
+import { Avatar } from "../Avatar";
 import { colors } from "../../theme/colors";
 import { fonts } from "../../theme/fonts";
+import { getInitials } from "../../utils/formatters";
 
 type BarberSelectProps = {
   barbers: Barber[];
@@ -91,11 +93,19 @@ export function BarberSelect({
                 opacity: pressed ? 0.8 : 1,
               })}
             >
-              <Image
-                source={barber.image}
-                className="h-16 w-16 rounded-full bg-brand-neutral"
-                resizeMode="cover"
-              />
+              {barber.image ? (
+                <Image
+                  source={barber.image}
+                  className="h-16 w-16 rounded-full bg-brand-neutral"
+                  resizeMode="cover"
+                />
+              ) : (
+                <Avatar
+                  initials={getInitials(barber.name)}
+                  size={64}
+                  color={state === "selected" ? "secondary" : "primary"}
+                />
+              )}
               <Text
                 className="mt-2 text-center"
                 numberOfLines={1}

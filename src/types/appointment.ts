@@ -1,9 +1,10 @@
 export type AppointmentStatus =
-  | "scheduled"
-  | "completed"
-  | "cancelled"
-  | "no_show";
+  | "pending"
+  | "approved"
+  | "declined";
 
+// Retained so appointments created before the status-model update can still
+// be interpreted correctly.
 export type ConfirmationStatus =
   | "pending"
   | "confirmed"

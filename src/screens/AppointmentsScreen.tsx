@@ -1,29 +1,35 @@
-import { useState, useEffect } from "react";
-import { ActivityIndicator, View, ScrollView, Text } from "react-native";
-import auth from "@react-native-firebase/auth";
+import { useEffect, useState } from "react";
 import {
-  createAppointment,
-  subscribeToBarberAppointments,
-} from "../services/firestoreService";
-import { subMonths, addMonths, addMinutes } from "date-fns";
-import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+import { addMinutes, addMonths, subMonths } from "date-fns";
+import { getAuth } from "@react-native-firebase/auth";
+import { BarberSelect } from "../components/appointments/BarberSelect";
+import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
 import { MonthHeader } from "../components/appointments/DateSelect/MonthHeader";
+import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
+import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
 import { ServiceSelect } from "../components/appointments/ServiceSelect";
-import { BarberSelect } from "../components/appointments/BarberSelect";
-import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
-import { mockServices } from "../mocks/services";
-import { mockBarbers } from "../mocks/barbers";
-import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
 import { BottomNav } from "../components/BottomNav";
+import { Button } from "../components";
 import { Header } from "../components/Header";
+import { mockServices } from "../mocks/services";
 import { AppView } from "../navigation/AppNavigator";
-import type { Service } from "../types/service";
+import {
+  createAppointment,
+  getBarbers,
+  subscribeToBarberAppointments,
+} from "../services/firestoreService";
+import { colors } from "../theme/colors";
 import type { Barber } from "../types/barber";
 import type { Appointment } from "../types/schedule";
-import { Button } from "../components";
-import { colors } from "../theme/colors";
+import type { Service } from "../types/service";
 import { doesOverlap } from "../utils/scheduleUtils";
 
 export interface AppointmentsScreenProps {
@@ -41,7 +47,7 @@ const MOCK_SCHEDULE = {
   startHour: 9,
   endHour: 17,
   slotLength: 30,
-}
+};
 
 export function AppointmentsScreen({
   userInitials = "?",
@@ -52,7 +58,7 @@ export function AppointmentsScreen({
   onNavigate,
 }: AppointmentsScreenProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [weekStart, setWeekStart] = useState(new Date());
+  const [weekStart] = useState(new Date());
   const [displayMonth, setDisplayMonth] = useState(new Date());
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
@@ -60,62 +66,36 @@ export function AppointmentsScreen({
   const [isReviewVisible, setIsReviewVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
   const [barberAppointments, setBarberAppointments] = useState<Appointment[]>([]);
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
   const [appointmentsError, setAppointmentsError] = useState<string | null>(null);
-  
+
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
     setDisplayMonth(date);
   };
 
-  const handleConfirmAppointment = async () => {
-    const currentUser = auth().currentUser;
-
-    if (
-      isSubmitting ||
-      !currentUser ||
-      !selectedService ||
-      !selectedBarber ||
-      !selectedStartTime
-    ) {
-      return;
-    }
-
-    const endTime = addMinutes(
-      selectedStartTime,
-      appointmentDuration
-    );
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const appointmentId = await createAppointment({
-        clientId: currentUser.uid,
-        barberId: selectedBarber.id,
-        serviceId: selectedService.id,
-        startTime: selectedStartTime,
-        endTime,
-        durationMinutes: appointmentDuration,
-        price: selectedService.price,
-      });
-
-      console.log("Appointment Created:", appointmentId);
-      setIsReviewVisible(false);
-      setSelectedStartTime(null);
-    } catch (error) {
-      console.error("[Appointments] Creation failed:", error);
-      setSubmitError("We couldn't book that appointment. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
   useEffect(() => {
     setSelectedStartTime(null);
     setSubmitError(null);
   }, [selectedDate, selectedService?.id, selectedBarber?.id]);
+
+  useEffect(() => {
+    getBarbers()
+      .then((barberProfiles) => {
+        setBarbers(
+          barberProfiles.map((profile) => ({
+            id: profile.uid,
+            name: profile.name,
+            phone: profile.phone,
+          }))
+        );
+      })
+      .catch((error) => {
+        console.error("[Appointments] Could not load barbers:", error);
+      });
+  }, []);
 
   useEffect(() => {
     if (!selectedBarber) {
@@ -168,6 +148,49 @@ export function AppointmentsScreen({
     }
   }, [appointmentDuration, barberAppointments, selectedStartTime]);
 
+  async function handleConfirmAppointment() {
+    const currentUser = getAuth().currentUser;
+
+    if (
+      isSubmitting ||
+      !selectedService ||
+      !selectedBarber ||
+      !selectedStartTime ||
+      !currentUser
+    ) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      await createAppointment({
+        barberId: selectedBarber.id,
+        clientId: currentUser.uid,
+        serviceId: selectedService.id,
+        price: selectedService.price,
+        durationMinutes: appointmentDuration,
+        startTime: selectedStartTime,
+        endTime: addMinutes(selectedStartTime, appointmentDuration),
+      });
+
+      setIsReviewVisible(false);
+      setSelectedStartTime(null);
+      onSelectService(null);
+      setSelectedBarber(null);
+      Alert.alert(
+        "Appointment requested",
+        "We'll let you know once the barber confirms it."
+      );
+    } catch (error) {
+      console.error("[Appointments] Could not create appointment:", error);
+      setSubmitError("We couldn't book that appointment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <View className="flex-1">
       <Header
@@ -185,22 +208,17 @@ export function AppointmentsScreen({
           />
           <View className="mt-5">
             <BarberSelect
-              barbers={mockBarbers}
+              barbers={barbers}
               selectedBarber={selectedBarber}
               onSelectBarber={setSelectedBarber}
             />
           </View>
         </View>
-        <View className="h-px bg-brand-border my-3" />
-        <View
-          className="px-4 py-3"
-        >
-          <CalendarToggle
-            mode={calendarMode}
-            onChange={setCalendarMode}
-          />
+        <View className="my-3 h-px bg-brand-border" />
+        <View className="px-4 py-3">
+          <CalendarToggle mode={calendarMode} onChange={setCalendarMode} />
         </View>
-        <View className="h-px bg-brand-border mb-3" />
+        <View className="mb-3 h-px bg-brand-border" />
         <View>
           {calendarMode === "week" ? (
             <WeekStrip
@@ -227,7 +245,7 @@ export function AppointmentsScreen({
             </View>
           )}
         </View>
-        <View className="h-px bg-brand-border my-4" />
+        <View className="my-4 h-px bg-brand-border" />
         <View>
           {selectedService && selectedBarber && isLoadingAppointments ? (
             <View className="items-center py-8">
@@ -276,25 +294,24 @@ export function AppointmentsScreen({
           Review Order
         </Button>
       </View>
-      {selectedService &&
-        selectedBarber &&
-        selectedStartTime && (
-          <OrderSummaryModal
-            visible={isReviewVisible}
-            service={selectedService}
-            barber={selectedBarber}
-            date={selectedDate}
-            startTime={selectedStartTime}
-            duration={appointmentDuration}
-            isSubmitting={isSubmitting}
-            submitError={submitError}
-            onClose={() => {
-              setSubmitError(null);
-              setIsReviewVisible(false);
-            }}
-            onConfirm={handleConfirmAppointment}
-          />
-        )}
+
+      {selectedService && selectedBarber && selectedStartTime ? (
+        <OrderSummaryModal
+          visible={isReviewVisible}
+          service={selectedService}
+          barber={selectedBarber}
+          date={selectedDate}
+          startTime={selectedStartTime}
+          duration={appointmentDuration}
+          isSubmitting={isSubmitting}
+          submitError={submitError}
+          onClose={() => {
+            setSubmitError(null);
+            setIsReviewVisible(false);
+          }}
+          onConfirm={handleConfirmAppointment}
+        />
+      ) : null}
 
       <BottomNav
         active="Appointments"

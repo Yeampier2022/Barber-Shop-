@@ -26,10 +26,7 @@ type SummaryRowProps = {
   value: string;
 };
 
-function SummaryRow({
-  label,
-  value,
-}: SummaryRowProps) {
+function SummaryRow({ label, value }: SummaryRowProps) {
   return (
     <View className="flex-row justify-between py-2">
       <Text
@@ -70,7 +67,7 @@ export function OrderSummaryModal({
 }: OrderSummaryModalProps) {
   const endTime = addMinutes(startTime, duration);
 
-  return(
+  return (
     <Modal
       visible={visible}
       animationType="slide"
@@ -89,14 +86,17 @@ export function OrderSummaryModal({
           >
             Review Order
           </Text>
-          
+
           <View className="rounded-xl border border-brand-border bg-brand-neutral p-4">
             <SummaryRow label="Service" value={service.name} />
             <SummaryRow label="Barber" value={barber.name} />
             <SummaryRow label="Date" value={formatFullDate(date)} />
-            <SummaryRow label="Time" value={`${formatTime(startTime)} - ${formatTime(endTime)}`} />
+            <SummaryRow
+              label="Time"
+              value={`${formatTime(startTime)} - ${formatTime(endTime)}`}
+            />
             <SummaryRow label="Duration" value={`${duration} minutes`} />
-            
+
             <View className="my-2 h-px bg-brand-border" />
 
             <SummaryRow label="Total" value={`$${service.price}`} />
@@ -120,6 +120,7 @@ export function OrderSummaryModal({
               size="md"
               fullWidth
               loading={isSubmitting}
+              disabled={isSubmitting}
               onPress={onConfirm}
             >
               {isSubmitting ? "Booking..." : "Confirm Appointment"}

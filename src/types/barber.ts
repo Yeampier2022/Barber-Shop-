@@ -4,7 +4,7 @@ export type Barber = {
   id: string;
   name: string;
   phone: string;
-  image: ImageSourcePropType;
+  image?: ImageSourcePropType;
 };
 
 export type BarberState =

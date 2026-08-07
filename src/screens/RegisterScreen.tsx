@@ -12,7 +12,7 @@ import { Button } from "../components/Button";
 import { Header } from "../components/Header";
 import { Input } from "../components/Input";
 import { getAuthErrorMessage, registerWithEmail } from "../services/authService";
-import { createUserProfile } from "../services/firestoreService";
+import { createBarberProfile, createUserProfile } from "../services/firestoreService";
 import type { UserRole } from "../types/user";
 import {
   isValidEmail,
@@ -74,6 +74,9 @@ export function RegisterScreen({ onSubmit, onLogin }: RegisterScreenProps) {
     try {
       const user = await registerWithEmail(email, password, name);
       await createUserProfile(user.uid, { name, phone, email, role });
+      if (role === "barber") {
+        await createBarberProfile(user.uid, { name, phone });
+      }
       console.log("[Register] Registration complete, uid:", user.uid);
       Alert.alert("Account created", "Your account was created successfully.", [
         { text: "OK", onPress: () => onSubmit?.() },

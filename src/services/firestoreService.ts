@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
   onSnapshot,
   query,
@@ -11,25 +12,63 @@ import {
   Timestamp,
   where,
 } from "@react-native-firebase/firestore";
-import type { RegisterInput, UserProfile } from "../types/user";
 import type { Appointment } from "../types/schedule";
 import type {
   AppointmentStatus,
   ConfirmationStatus,
   CreateAppointmentInput,
 } from "../types/appointment";
+import type { RegisterInput, UserProfile } from "../types/user";
 
-const INITIAL_APPOINTMENT_STATUS: AppointmentStatus = "scheduled";
-const INITIAL_CONFIRMATION_STATUS: ConfirmationStatus = "pending";
+export type { AppointmentStatus } from "../types/appointment";
+
+export type ReservationDoc = {
+  id: string;
+  barberId?: string;
+  clientId?: string;
+  serviceId?: string;
+  durationMinutes?: number;
+  price?: number;
+  status?: AppointmentStatus;
+  startTime?: unknown;
+  endTime?: unknown;
+  createdAt?: unknown;
+  [key: string]: unknown;
+};
+
+export type BarberProfile = UserProfile & { uid: string };
+
+type StoredAppointmentStatus =
+  | AppointmentStatus
+  | "scheduled"
+  | "completed"
+  | "cancelled"
+  | "no_show";
 
 type FirestoreAppointment = {
   barberId?: string;
   clientId?: string;
   startTime?: Timestamp;
   endTime?: Timestamp;
-  status?: AppointmentStatus;
+  status?: StoredAppointmentStatus;
   confirmationStatus?: ConfirmationStatus;
 };
+
+function normalizeAppointmentStatus(
+  status: unknown,
+  confirmationStatus: unknown
+): AppointmentStatus {
+  if (status === "approved" || status === "declined" || status === "pending") {
+    return status;
+  }
+  if (status === "cancelled" || confirmationStatus === "declined") {
+    return "declined";
+  }
+  if (confirmationStatus === "confirmed" || status === "completed") {
+    return "approved";
+  }
+  return "pending";
+}
 
 export async function createUserProfile(
   uid: string,
@@ -46,6 +85,20 @@ export async function createUserProfile(
   console.log("[Firestore] Profile created at users/" + uid);
 }
 
+export async function createBarberProfile(
+  uid: string,
+  input: { name: string; phone: string }
+) {
+  const db = getFirestore();
+  await setDoc(doc(db, "barberProfile", uid), {
+    name: input.name.trim(),
+    phone: input.phone.trim(),
+    bio: "",
+    photoURL: "",
+  });
+  console.log("[Firestore] Barber profile created at barberProfile/" + uid);
+}
+
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   const db = getFirestore();
   const snapshot = await getDoc(doc(db, "users", uid));
@@ -57,23 +110,67 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   return snapshot.data() as UserProfile;
 }
 
+export async function getReservations(
+  field: "barberId" | "clientId",
+  uid: string
+): Promise<ReservationDoc[]> {
+  const db = getFirestore();
+  const reservationsQuery = query(
+    collection(db, "appointments"),
+    where(field, "==", uid)
+  );
+  const snapshot = await getDocs(reservationsQuery);
+
+  const reservations = snapshot.docs.map((documentSnapshot) => {
+    const data = documentSnapshot.data();
+    return {
+      id: documentSnapshot.id,
+      ...data,
+      status: normalizeAppointmentStatus(
+        data.status,
+        data.confirmationStatus
+      ),
+    } as ReservationDoc;
+  });
+
+  console.log(`[Firestore] reservations where ${field} == ${uid}:`, reservations);
+  return reservations;
+}
+
+export async function getBarbers(): Promise<BarberProfile[]> {
+  const db = getFirestore();
+  const barbersQuery = query(
+    collection(db, "users"),
+    where("role", "==", "barber")
+  );
+  const snapshot = await getDocs(barbersQuery);
+
+  const barbers = snapshot.docs.map((documentSnapshot) => ({
+    uid: documentSnapshot.id,
+    ...(documentSnapshot.data() as UserProfile),
+  }));
+
+  console.log("[Firestore] barbers found:", barbers.length);
+  return barbers;
+}
+
 export async function createAppointment(input: CreateAppointmentInput) {
   const db = getFirestore();
-  const appointmentRef = await addDoc(collection(db, "appointments"),
-    {
-      clientId: input.clientId,
-      barberId: input.barberId,
-      serviceId: input.serviceId,
-      startTime: Timestamp.fromDate(input.startTime),
-      endTime: Timestamp.fromDate(input.endTime),
-      durationMinutes: input.durationMinutes,
-      price: input.price,
-      status: INITIAL_APPOINTMENT_STATUS,
-      confirmationStatus: INITIAL_CONFIRMATION_STATUS,
-      createdAt: serverTimestamp(),
-    }
-  );
-  console.log("[Firestore] Appointment created at appointments/" + appointmentRef.id);
+  const appointmentRef = await addDoc(collection(db, "appointments"), {
+    clientId: input.clientId,
+    barberId: input.barberId,
+    serviceId: input.serviceId,
+    startTime: Timestamp.fromDate(input.startTime),
+    endTime: Timestamp.fromDate(input.endTime),
+    durationMinutes: input.durationMinutes,
+    price: input.price,
+    status: "pending" satisfies AppointmentStatus,
+    createdAt: serverTimestamp(),
+  });
+
+  console.log("[Firestore] Appointment created:", appointmentRef.id, {
+    status: "pending",
+  });
   return appointmentRef.id;
 }
 
@@ -108,8 +205,8 @@ export function subscribeToBarberAppointments(
           !data.endTime ||
           data.startTime.toDate() < startOfDay ||
           data.startTime.toDate() >= startOfNextDay ||
-          data.status === "cancelled" ||
-          data.confirmationStatus === "declined"
+          normalizeAppointmentStatus(data.status, data.confirmationStatus) ===
+            "declined"
         ) {
           return [];
         }
