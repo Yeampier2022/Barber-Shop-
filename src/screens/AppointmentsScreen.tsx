@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { View, ScrollView, Text } from "react-native";
+import { ActivityIndicator, View, ScrollView, Text } from "react-native";
 import auth from "@react-native-firebase/auth";
-import { createAppointment } from "../services/firestoreService";
+import {
+  createAppointment,
+  subscribeToBarberAppointments,
+} from "../services/firestoreService";
 import { subMonths, addMonths, addMinutes } from "date-fns";
 import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { MonthDisplay } from "../components/appointments/DateSelect/MonthDisplay";
@@ -10,7 +13,6 @@ import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDis
 import { ServiceSelect } from "../components/appointments/ServiceSelect";
 import { BarberSelect } from "../components/appointments/BarberSelect";
 import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
-import { getMockAppointments } from "../mocks/appointments";
 import { mockServices } from "../mocks/services";
 import { mockBarbers } from "../mocks/barbers";
 import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
@@ -19,7 +21,10 @@ import { Header } from "../components/Header";
 import { AppView } from "../navigation/AppNavigator";
 import type { Service } from "../types/service";
 import type { Barber } from "../types/barber";
+import type { Appointment } from "../types/schedule";
 import { Button } from "../components";
+import { colors } from "../theme/colors";
+import { doesOverlap } from "../utils/scheduleUtils";
 
 export interface AppointmentsScreenProps {
   userInitials?: string;
@@ -38,8 +43,6 @@ const MOCK_SCHEDULE = {
   slotLength: 30,
 }
 
-const appointments = getMockAppointments(new Date()); 
-
 export function AppointmentsScreen({
   userInitials = "?",
   onAvatarPress,
@@ -57,11 +60,9 @@ export function AppointmentsScreen({
   const [isReviewVisible, setIsReviewVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const barberAppointments = selectedBarber
-    ? appointments.filter(
-      (appointment) => appointment.barberId === selectedBarber.id
-    )
-    : [];
+  const [barberAppointments, setBarberAppointments] = useState<Appointment[]>([]);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
+  const [appointmentsError, setAppointmentsError] = useState<string | null>(null);
   
   const handleSelectDate = (date: Date) => {
     setSelectedDate(date);
@@ -115,6 +116,57 @@ export function AppointmentsScreen({
     setSelectedStartTime(null);
     setSubmitError(null);
   }, [selectedDate, selectedService?.id, selectedBarber?.id]);
+
+  useEffect(() => {
+    if (!selectedBarber) {
+      setBarberAppointments([]);
+      setAppointmentsError(null);
+      setIsLoadingAppointments(false);
+      return;
+    }
+
+    setBarberAppointments([]);
+    setAppointmentsError(null);
+    setIsLoadingAppointments(true);
+
+    return subscribeToBarberAppointments(
+      selectedBarber.id,
+      selectedDate,
+      (appointments) => {
+        setBarberAppointments(appointments);
+        setAppointmentsError(null);
+        setIsLoadingAppointments(false);
+      },
+      () => {
+        setBarberAppointments([]);
+        setAppointmentsError(
+          "We couldn't load this barber's appointments. Please try again."
+        );
+        setIsLoadingAppointments(false);
+      }
+    );
+  }, [selectedBarber, selectedDate]);
+
+  useEffect(() => {
+    if (!selectedStartTime) {
+      return;
+    }
+
+    const selectedSlot = {
+      start: selectedStartTime,
+      end: addMinutes(selectedStartTime, appointmentDuration),
+      isBookable: true,
+    };
+
+    if (
+      barberAppointments.some((appointment) =>
+        doesOverlap(selectedSlot, appointment)
+      )
+    ) {
+      setSelectedStartTime(null);
+      setIsReviewVisible(false);
+    }
+  }, [appointmentDuration, barberAppointments, selectedStartTime]);
 
   return (
     <View className="flex-1">
@@ -177,7 +229,18 @@ export function AppointmentsScreen({
         </View>
         <View className="h-px bg-brand-border my-4" />
         <View>
-          {selectedService && selectedBarber ? (
+          {selectedService && selectedBarber && isLoadingAppointments ? (
+            <View className="items-center py-8">
+              <ActivityIndicator color={colors.primary} />
+              <Text className="mt-2 font-roboto-slab text-sm text-brand-tertiary">
+                Loading available times...
+              </Text>
+            </View>
+          ) : selectedService && selectedBarber && appointmentsError ? (
+            <Text className="px-4 py-6 text-center font-roboto-slab-medium text-brand-secondary">
+              {appointmentsError}
+            </Text>
+          ) : selectedService && selectedBarber ? (
             <ScheduleDisplay
               day={selectedDate}
               startHour={MOCK_SCHEDULE.startHour}
@@ -202,7 +265,13 @@ export function AppointmentsScreen({
           size="md"
           fullWidth
           onPress={() => setIsReviewVisible(true)}
-          disabled={!selectedStartTime || !selectedService || !selectedBarber}
+          disabled={
+            !selectedStartTime ||
+            !selectedService ||
+            !selectedBarber ||
+            isLoadingAppointments ||
+            Boolean(appointmentsError)
+          }
         >
           Review Order
         </Button>

@@ -4,11 +4,15 @@ import {
   doc,
   getDoc,
   getFirestore,
+  onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
   Timestamp,
+  where,
 } from "@react-native-firebase/firestore";
 import type { RegisterInput, UserProfile } from "../types/user";
+import type { Appointment } from "../types/schedule";
 import type {
   AppointmentStatus,
   ConfirmationStatus,
@@ -17,6 +21,15 @@ import type {
 
 const INITIAL_APPOINTMENT_STATUS: AppointmentStatus = "scheduled";
 const INITIAL_CONFIRMATION_STATUS: ConfirmationStatus = "pending";
+
+type FirestoreAppointment = {
+  barberId?: string;
+  clientId?: string;
+  startTime?: Timestamp;
+  endTime?: Timestamp;
+  status?: AppointmentStatus;
+  confirmationStatus?: ConfirmationStatus;
+};
 
 export async function createUserProfile(
   uid: string,
@@ -62,4 +75,58 @@ export async function createAppointment(input: CreateAppointmentInput) {
   );
   console.log("[Firestore] Appointment created at appointments/" + appointmentRef.id);
   return appointmentRef.id;
+}
+
+export function subscribeToBarberAppointments(
+  barberId: string,
+  day: Date,
+  onAppointments: (appointments: Appointment[]) => void,
+  onError: (error: Error) => void
+) {
+  const db = getFirestore();
+  const startOfDay = new Date(day);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const startOfNextDay = new Date(startOfDay);
+  startOfNextDay.setDate(startOfNextDay.getDate() + 1);
+
+  const appointmentsQuery = query(
+    collection(db, "appointments"),
+    where("barberId", "==", barberId)
+  );
+
+  return onSnapshot(
+    appointmentsQuery,
+    (snapshot) => {
+      const appointments = snapshot.docs.flatMap((appointmentDocument) => {
+        const data = appointmentDocument.data() as FirestoreAppointment;
+
+        if (
+          !data.barberId ||
+          !data.clientId ||
+          !data.startTime ||
+          !data.endTime ||
+          data.startTime.toDate() < startOfDay ||
+          data.startTime.toDate() >= startOfNextDay ||
+          data.status === "cancelled" ||
+          data.confirmationStatus === "declined"
+        ) {
+          return [];
+        }
+
+        return [{
+          barberId: data.barberId,
+          clientId: data.clientId,
+          start: data.startTime.toDate(),
+          end: data.endTime.toDate(),
+        }];
+      });
+
+      onAppointments(appointments);
+    },
+    (error) => {
+      console.error("[Firestore] Could not load barber appointments:", error);
+      onError(error);
+    }
+  );
 }
