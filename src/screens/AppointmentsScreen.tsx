@@ -16,7 +16,6 @@ import { WeekStrip } from "../components/appointments/DateSelect/WeekStrip";
 import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
 import { ScheduleDisplay } from "../components/appointments/Schedule/ScheduleDisplay";
 import { ServiceSelect } from "../components/appointments/ServiceSelect";
-<<<<<<< HEAD
 import { BarberSelect } from "../components/appointments/BarberSelect";
 import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal";
 import { getMockAppointments } from "../mocks/appointments";
@@ -24,8 +23,6 @@ import { mockServices } from "../mocks/services";
 import { createAppointment, getBarbers } from "../services/firestoreService";
 import { notifyUser } from "../services/notificationService";
 import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
-=======
->>>>>>> 6df7c4c32ae27e0b77df7f19076289f07e356db6
 import { BottomNav } from "../components/BottomNav";
 import { Button } from "../components";
 import { Header } from "../components/Header";
@@ -186,7 +183,6 @@ export function AppointmentsScreen({
       });
 
       setIsReviewVisible(false);
-<<<<<<< HEAD
       Alert.alert("Appointment requested", "We'll let you know once the barber confirms it.");
 
       notifyUser(
@@ -197,8 +193,6 @@ export function AppointmentsScreen({
         console.error("[Appointments] Could not notify barber:", error);
       });
 
-=======
->>>>>>> 6df7c4c32ae27e0b77df7f19076289f07e356db6
       setSelectedStartTime(null);
       onSelectService(null);
       setSelectedBarber(null);
