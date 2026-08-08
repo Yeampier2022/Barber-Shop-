@@ -71,6 +71,12 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   return snapshot.data() as UserProfile;
 }
 
+export async function updatePushToken(uid: string, pushToken: string) {
+  const db = getFirestore();
+  await setDoc(doc(db, "users", uid), { pushToken }, { merge: true });
+  console.log("[Firestore] Push token saved for users/" + uid);
+}
+
 export async function getReservations(
   field: "barberId" | "clientId",
   uid: string
@@ -123,4 +129,10 @@ export async function createAppointment(input: {
   console.log("[Firestore] Appointment created:", docRef.id, { status: "pending" });
 
   return docRef.id;
+}
+
+export async function updateAppointmentStatus(appointmentId: string, status: AppointmentStatus) {
+  const db = getFirestore();
+  await setDoc(doc(db, "appointments", appointmentId), { status }, { merge: true });
+  console.log(`[Firestore] Appointment ${appointmentId} set to ${status}`);
 }

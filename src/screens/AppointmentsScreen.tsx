@@ -12,6 +12,7 @@ import { OrderSummaryModal } from "../components/appointments/OrderSummaryModal"
 import { getMockAppointments } from "../mocks/appointments";
 import { mockServices } from "../mocks/services";
 import { createAppointment, getBarbers } from "../services/firestoreService";
+import { notifyUser } from "../services/notificationService";
 import { CalendarToggle } from "../components/appointments/DateSelect/CalendarToggle";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
@@ -107,6 +108,15 @@ export function AppointmentsScreen({
 
       setIsReviewVisible(false);
       Alert.alert("Appointment requested", "We'll let you know once the barber confirms it.");
+
+      notifyUser(
+        selectedBarber.id,
+        "New appointment request",
+        `${currentUser.displayName ?? "A client"} requested a ${selectedService.name} appointment.`
+      ).catch((error) => {
+        console.error("[Appointments] Could not notify barber:", error);
+      });
+
       setSelectedStartTime(null);
       onSelectService(null);
       setSelectedBarber(null);

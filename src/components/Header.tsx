@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Image, View, ViewProps } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { cn } from "../utils/cn";
 import { Avatar } from "./Avatar";
 import { ButtonColor } from "./Button";
@@ -25,14 +26,18 @@ export function Header({
   logo,
   rightContent,
   className,
+  style,
   ...viewProps
 }: HeaderProps) {
+  const insets = useSafeAreaInsets();
+
   return (
     <View
       className={cn(
-        "flex-row items-center justify-between bg-white px-4 py-3",
+        "flex-row items-center justify-between bg-white px-4 pb-3",
         className
       )}
+      style={[{ paddingTop: insets.top + 12 }, style]}
       {...viewProps}
     >
       <View className="flex-row items-center">

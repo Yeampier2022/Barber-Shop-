@@ -40,12 +40,14 @@
           }
         }
       ],
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      "expo-notifications"
     ],
     "extra": {
       "eas": {
-        "projectId": "fddb1ac4-b1ab-41c7-81ad-4bf3d3e22627"
+        "projectId": "30e8c24e-1f09-4fd0-8367-728fdc26d546"
       }
-    }
+    },
+    "owner": "yanpi-dev"
   }
 }
