@@ -12,7 +12,20 @@
           "package_name": "com.yeampier.barber"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "118262159405-sa8n3r203bv55sgodnrs2gm0nai4t3ar.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yeampier.barber",
+            "certificate_hash": "9de547302ce57d93562889f4f8e8020ef86cb5fe"
+          }
+        },
+        {
+          "client_id": "118262159405-vo20ig63ojddh6hjv4tadsjivj87ebk8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAy4pwC6bgZCJ0QkqbjPR-OMRMQdHHulV0"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "118262159405-vo20ig63ojddh6hjv4tadsjivj87ebk8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,29 +1,41 @@
-/* @ts-nocheck */
-import { useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { db } from './firebaseConfig';
+  RobotoSlab_400Regular,
+  RobotoSlab_500Medium,
+  RobotoSlab_700Bold,
+  useFonts,
+} from "@expo-google-fonts/roboto-slab";
+import { signInWithGoogle } from "./src/services/authService";
+import { createUserProfile, getUserProfile } from "./src/services/firestoreService";
+import auth from "@react-native-firebase/auth";
+import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import * as Notifications from "expo-notifications";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect, useRef, useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { HomeScreen } from "./src/screens/HomeScreen";
+import { LoginScreen } from "./src/screens/LoginScreen";
+import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { RegisterScreen } from "./src/screens/RegisterScreen";
+import { WelcomeScreen } from "./src/screens/WelcomeScreen";
+import { AppointmentsScreen } from "./src/screens/AppointmentsScreen";
+import { getInitials } from "./src/utils/formatters";
+import { AppView } from "./src/navigation/AppNavigator";
+import { ServicesScreen } from "./src/screens/ServicesScreen";
+import type { Service } from "./src/types/service";
+import { calculateDuration } from "./src/utils/serviceUtils";
 
-const services = ['Corte', 'Barba', 'Corte + Barba'];
+SplashScreen.preventAutoHideAsync();
 
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('es-ES', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
+// Show notifications with a banner + sound even while the app is open in the
+// foreground (default behavior is to hide them), useful while testing.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
   const [name, setName] = useState('');
@@ -91,97 +103,149 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        <Text>Reserva tu corte</Text>
-        <Text>
-          Completa el formulario para agendar tu cita y la guardaremos en Firebase.
-        </Text>
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
+  );
+}
 
-        <View>
-          <View>
-            <Text>Nombre</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Tu nombre"
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
+function AppContent() {
+  const [fontsLoaded, fontError] = useFonts({
+    RobotoSlab_400Regular,
+    RobotoSlab_500Medium,
+    RobotoSlab_700Bold,
+  });
+  const [view, setView] = useState<AppView>("welcome");
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const hasCheckedInitialAuth = useRef(false);
+  const appointmentDuration = selectedService
+    ? calculateDuration([selectedService])
+    : 0;
 
-          <View>
-            <Text>Teléfono</Text>
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="Ej. 123456789"
-              placeholderTextColor="#94a3b8"
-              keyboardType="phone-pad"
-            />
-          </View>
+  const handleGoogleSignIn = async () => {
+    try {
+      const user = await signInWithGoogle();
 
-          <View>
-            <Text>Servicio</Text>
-            <View>
-              {services.map(option => (
-                <TouchableOpacity
-                  key={option}
-                  onPress={() => setService(option)}>
-                  <Text>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+      const profile = await getUserProfile(user.uid);
+      if (!profile) {
+        await createUserProfile(user.uid, {
+          name: user.displayName ?? "Google User",
+          phone: user.phoneNumber ?? "",
+          email: user.email ?? "",
+          role: "client",
+        });
+      }
+      setView("home");
+    } catch (error) {
+      console.error("[Auth] Google sign-in failed:", error);
+    }
+  };
 
-          <View>
-            <Text>Fecha (YYYY-MM-DD)</Text>
-            <TextInput
-              value={date}
-              onChangeText={setDate}
-              placeholder="2026-07-25"
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged((firebaseUser) => {
+      setUser(firebaseUser);
 
-          <View>
-            <Text>Hora (HH:MM)</Text>
-            <TextInput
-              value={time}
-              onChangeText={setTime}
-              placeholder="14:30"
-              placeholderTextColor="#94a3b8"
-            />
-          </View>
+      if (!hasCheckedInitialAuth.current) {
+        hasCheckedInitialAuth.current = true;
+        setAuthChecked(true);
 
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={loading}>
-            {loading ? (
-              <ActivityIndicator />
-            ) : (
-              <Text>Guardar cita</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+        if (firebaseUser) {
+          setView("home");
+        }
 
-        <View>
-          <Text>Citas próximas</Text>
-          {bookings.length === 0 ? (
-            <Text>No hay reservas todavía. Agrega una cita arriba.</Text>
-          ) : (
-            bookings.map(booking => (
-              <View key={booking.id}>
-                <Text>{booking.name}</Text>
-                <Text>{booking.service}</Text>
-                <Text>{booking.phone}</Text>
-                <Text>{booking.datetime ? formatDate(new Date(booking.datetime.seconds ? booking.datetime.toDate() : booking.datetime)) : 'Fecha no disponible'}</Text>
-              </View>
-            ))
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        return;
+      }
+
+      if (!firebaseUser) {
+        setView("welcome");
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && authChecked) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError, authChecked]);
+
+  if ((!fontsLoaded && !fontError) || !authChecked) {
+    return null;
+  }
+
+  const userInitials = getInitials(auth().currentUser?.displayName ?? user?.displayName);
+  const handleAvatarPress = () => setView("profile");
+
+  if (view === "welcome") {
+    return <WelcomeScreen
+      onLogin={() => setView("login")}
+      onRegister={() => setView("register")}
+      onGoogleLogin={handleGoogleSignIn}
+    />;
+  }
+
+  if (view === "profile") {
+    return (
+      <ProfileScreen
+        onBack={() => setView("home")}
+        onSignedOut={() => setView("welcome")}
+      />
+    );
+  }
+
+  if (view === "home") {
+    return (
+      <HomeScreen
+        userInitials={userInitials}
+        onAvatarPress={handleAvatarPress}
+        onNavigate={(screen) => {
+          setView(screen);
+        }}
+      />
+    );
+  }
+
+  if (view === "login") {
+    return (
+      <LoginScreen
+        onSubmit={() => setView("home")}
+        onRegister={() => setView("register")}
+      />
+    );
+  }
+
+  if (view === "register") {
+    return (
+      <RegisterScreen
+        onSubmit={() => setView("home")}
+        onLogin={() => setView("login")}
+      />
+    );
+  }
+
+  if (view === "appointments") {
+    return (
+      <AppointmentsScreen
+        userInitials={userInitials}
+        onAvatarPress={handleAvatarPress}
+        selectedService={selectedService}
+        appointmentDuration={appointmentDuration}
+        onSelectService={setSelectedService}
+        onNavigate={(screen) => setView(screen)}
+      />
+    );
+  }
+
+  return (
+    <ServicesScreen
+      userInitials={userInitials}
+      onAvatarPress={handleAvatarPress}
+      selectedService={selectedService}
+      onSelectService={setSelectedService}
+      onNavigate={(screen) => setView(screen)}
+    />
   );
 }

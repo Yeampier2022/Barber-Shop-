@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "CorteListo",
-    "slug": "CorteListo",
+    "name": "Barber App",
+    "slug": "barber-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/hombre.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,19 +17,37 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/hombre.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.CorteListo"
+      "package": "com.yeampier.barber",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      // "@react-native-firebase/app",
-      // "@react-native-firebase/auth"
-    ]
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "ndkVersion": "26.1.10909125"
+          }
+        }
+      ],
+      "@react-native-google-signin/google-signin",
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "30e8c24e-1f09-4fd0-8367-728fdc26d546"
+      }
+    },
+    "owner": "yanpi-dev"
   }
 }
