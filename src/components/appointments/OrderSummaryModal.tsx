@@ -15,9 +15,10 @@ type OrderSummaryModalProps = {
   date: Date;
   startTime: Date;
   duration: number;
-  confirming?: boolean;
+  isSubmitting: boolean;
+  submitError: string | null;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
 };
 
 type SummaryRowProps = {
@@ -25,10 +26,7 @@ type SummaryRowProps = {
   value: string;
 };
 
-function SummaryRow({
-  label,
-  value,
-}: SummaryRowProps) {
+function SummaryRow({ label, value }: SummaryRowProps) {
   return (
     <View className="flex-row justify-between py-2">
       <Text
@@ -62,13 +60,14 @@ export function OrderSummaryModal({
   date,
   startTime,
   duration,
-  confirming = false,
+  isSubmitting,
+  submitError,
   onClose,
   onConfirm,
 }: OrderSummaryModalProps) {
   const endTime = addMinutes(startTime, duration);
 
-  return(
+  return (
     <Modal
       visible={visible}
       animationType="slide"
@@ -87,34 +86,50 @@ export function OrderSummaryModal({
           >
             Review Order
           </Text>
-          
+
           <View className="rounded-xl border border-brand-border bg-brand-neutral p-4">
             <SummaryRow label="Service" value={service.name} />
             <SummaryRow label="Barber" value={barber.name} />
             <SummaryRow label="Date" value={formatFullDate(date)} />
-            <SummaryRow label="Time" value={`${formatTime(startTime)} - ${formatTime(endTime)}`} />
+            <SummaryRow
+              label="Time"
+              value={`${formatTime(startTime)} - ${formatTime(endTime)}`}
+            />
             <SummaryRow label="Duration" value={`${duration} minutes`} />
-            
+
             <View className="my-2 h-px bg-brand-border" />
 
             <SummaryRow label="Total" value={`$${service.price}`} />
           </View>
 
+          {submitError ? (
+            <Text
+              className="mt-3 text-center"
+              style={{
+                color: colors.secondary,
+                fontFamily: fonts.medium,
+                fontSize: 14,
+              }}
+            >
+              {submitError}
+            </Text>
+          ) : null}
+
           <View className="mt-6" style={{ gap: 12 }}>
             <Button
               size="md"
               fullWidth
-              loading={confirming}
-              disabled={confirming}
+              loading={isSubmitting}
+              disabled={isSubmitting}
               onPress={onConfirm}
             >
-              Confirm Appointment
+              {isSubmitting ? "Booking..." : "Confirm Appointment"}
             </Button>
             <Button
               size="md"
               variant="outline"
               fullWidth
-              disabled={confirming}
+              disabled={isSubmitting}
               onPress={onClose}
             >
               Make Changes
@@ -123,5 +138,5 @@ export function OrderSummaryModal({
         </View>
       </View>
     </Modal>
-  )
+  );
 }
