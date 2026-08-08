@@ -1,6 +1,5 @@
 import { View, ScrollView, Text } from "react-native";
 import { ServiceDisplay } from "../components/services/ServiceDisplay";
-import { mockServices } from "../mocks/services";
 import { BottomNav } from "../components/BottomNav";
 import { Header } from "../components/Header";
 import { Button } from "../components/Button";
@@ -13,6 +12,9 @@ export interface ServicesScreenProps {
   userInitials?: string;
   onAvatarPress?: () => void;
   selectedService: Service | null;
+  services: Service[];
+  servicesLoading: boolean;
+  servicesError: string | null;
   onSelectService: (service: Service | null) => void;
   onNavigate: (screen: AppView) => void;
 }
@@ -21,6 +23,9 @@ export function ServicesScreen({
   userInitials = "?",
   onAvatarPress,
   selectedService,
+  services,
+  servicesLoading,
+  servicesError,
   onSelectService,
   onNavigate
 }: ServicesScreenProps) {
@@ -50,15 +55,29 @@ export function ServicesScreen({
           Services
         </Text>
         <View className="flex-1 px-6 pt-6" style={{ gap: 16 }}>
-          <ServiceDisplay
-            services={mockServices}
-            selectedService={selectedService}
-            onPress={(service) =>
-              onSelectService(
-                selectedService?.id === service.id ? null : service
-              )
-            }
-          />
+          {servicesLoading ? (
+            <Text className="text-center font-roboto-slab text-brand-tertiary">
+              Loading services...
+            </Text>
+          ) : servicesError ? (
+            <Text className="text-center font-roboto-slab text-brand-secondary">
+              {servicesError}
+            </Text>
+          ) : services.length === 0 ? (
+            <Text className="text-center font-roboto-slab text-brand-tertiary">
+              No services are currently available.
+            </Text>
+          ) : (
+            <ServiceDisplay
+              services={services}
+              selectedService={selectedService}
+              onPress={(service) =>
+                onSelectService(
+                  selectedService?.id === service.id ? null : service
+                )
+              }
+            />
+          )}
         </View>
       </ScrollView>
       

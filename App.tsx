@@ -5,7 +5,11 @@ import {
   useFonts,
 } from "@expo-google-fonts/roboto-slab";
 import { signInWithGoogle } from "./src/services/authService";
-import { createUserProfile, getUserProfile } from "./src/services/firestoreService";
+import {
+  createUserProfile,
+  getServices,
+  getUserProfile,
+} from "./src/services/firestoreService";
 import auth from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import * as SplashScreen from "expo-splash-screen";
@@ -33,6 +37,9 @@ export default function App() {
   const [view, setView] = useState<AppView>("welcome");
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesError, setServicesError] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const hasCheckedInitialAuth = useRef(false);
   const appointmentDuration = selectedService
@@ -80,6 +87,43 @@ export default function App() {
 
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setServices([]);
+      setSelectedService(null);
+      setServicesLoading(false);
+      setServicesError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setServicesLoading(true);
+    setServicesError(null);
+
+    getServices()
+      .then((availableServices) => {
+        if (!cancelled) {
+          setServices(availableServices);
+        }
+      })
+      .catch((error) => {
+        console.error("[Firestore] Could not load services:", error);
+        if (!cancelled) {
+          setServices([]);
+          setServicesError("We couldn't load the services. Please try again.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setServicesLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   useEffect(() => {
     if ((fontsLoaded || fontError) && authChecked) {
@@ -147,6 +191,9 @@ export default function App() {
         userInitials={userInitials}
         onAvatarPress={handleAvatarPress}
         selectedService={selectedService}
+        services={services}
+        servicesLoading={servicesLoading}
+        servicesError={servicesError}
         appointmentDuration={appointmentDuration}
         onSelectService={setSelectedService}
         onNavigate={(screen) => setView(screen)}
@@ -159,6 +206,9 @@ export default function App() {
       userInitials={userInitials}
       onAvatarPress={handleAvatarPress}
       selectedService={selectedService}
+      services={services}
+      servicesLoading={servicesLoading}
+      servicesError={servicesError}
       onSelectService={setSelectedService}
       onNavigate={(screen) => setView(screen)}
     />

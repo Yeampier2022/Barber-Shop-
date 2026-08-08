@@ -19,7 +19,6 @@ import { ServiceSelect } from "../components/appointments/ServiceSelect";
 import { BottomNav } from "../components/BottomNav";
 import { Button } from "../components";
 import { Header } from "../components/Header";
-import { mockServices } from "../mocks/services";
 import { AppView } from "../navigation/AppNavigator";
 import {
   createAppointment,
@@ -36,6 +35,9 @@ export interface AppointmentsScreenProps {
   userInitials?: string;
   onAvatarPress?: () => void;
   selectedService: Service | null;
+  services: Service[];
+  servicesLoading: boolean;
+  servicesError: string | null;
   appointmentDuration: number;
   onSelectService: (service: Service | null) => void;
   onNavigate: (screen: AppView) => void;
@@ -53,6 +55,9 @@ export function AppointmentsScreen({
   userInitials = "?",
   onAvatarPress,
   selectedService,
+  services,
+  servicesLoading,
+  servicesError,
   appointmentDuration,
   onSelectService,
   onNavigate,
@@ -201,11 +206,25 @@ export function AppointmentsScreen({
 
       <ScrollView className="flex-1 px-3">
         <View className="px-4 py-4">
-          <ServiceSelect
-            services={mockServices}
-            selectedService={selectedService}
-            onSelectService={onSelectService}
-          />
+          {servicesLoading ? (
+            <Text className="py-4 text-center font-roboto-slab text-brand-tertiary">
+              Loading services...
+            </Text>
+          ) : servicesError ? (
+            <Text className="py-4 text-center font-roboto-slab text-brand-secondary">
+              {servicesError}
+            </Text>
+          ) : services.length === 0 ? (
+            <Text className="py-4 text-center font-roboto-slab text-brand-tertiary">
+              No services are currently available.
+            </Text>
+          ) : (
+            <ServiceSelect
+              services={services}
+              selectedService={selectedService}
+              onSelectService={onSelectService}
+            />
+          )}
           <View className="mt-5">
             <BarberSelect
               barbers={barbers}
