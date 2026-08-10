@@ -106,7 +106,8 @@ function createWebFirestoreCollection(collectionName: string) {
 
   return {
     orderBy: (field: string, direction = 'asc') => {
-      const queryDirection = direction.toUpperCase();
+      const normalizedDirection = String(direction || 'asc').toLowerCase();
+      const queryDirection = normalizedDirection === 'desc' ? 'DESCENDING' : 'ASCENDING';
 
       return {
         async get() {

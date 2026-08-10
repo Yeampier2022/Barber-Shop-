@@ -20,12 +20,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.CorteListo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "notification": {
+      "vapidPublicKey": "BI2-PLACEHOLDER-EXPO-WEB-VAPID-PUBLIC-KEY-12345"
     },
     "plugins": [
       // "@react-native-firebase/app",
