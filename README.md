@@ -1,11 +1,14 @@
-# Barber Shop
+# CorteListo (Barber App)
 
-Barber Shop is a mobile appointment-booking app built with React Native and Expo. It gives clients a simple way to browse services, choose a barber, find an available time, and request an appointment. Barber and client accounts can also view their upcoming reservations from a role-aware home screen.
+A React Native (Expo) app for booking appointments at a barber shop. Users can browse services and barbers, pick a date and time, and manage their bookings. Data is stored in Firebase Firestore, and authentication is handled with Firebase Auth / Google Sign-In.
 
 ## Favorite Quotes
 
 **Tracy Catherine Nalubwama**
 > "Happy mind, happy life"
+
+**Yeampier Huerta**
+> "The only true wisdom is knowing you know nothing; life moves pretty fast, so keep moving"
 
 **Jonatan Troche Almedia**
 > "The only way to do a great job is living what you do." - Steve Jobs
@@ -16,109 +19,106 @@ Barber Shop is a mobile appointment-booking app built with React Native and Expo
 
 ## Features
 
-- Register and sign in with email and password
-- Sign in with Google
-- Create client and barber profiles
-- Browse barber services and view prices and durations
-- Choose a barber and view available appointments by week or month
-- Filter unavailable time slots with real-time schedule updates
-- Review an order before requesting an appointment
-- View upcoming reservations and their pending, approved, or declined status
-- View profile details and sign out
+- Sign up / log in with email or Google Sign-In (Firebase Auth).
+- Browse barbers and services.
+- Book an appointment with name, phone number, service, barber, date, and time.
+- Appointments are saved to and read from Firebase Firestore in real time.
+- View and manage upcoming bookings from the profile/appointments screen.
+- Local push notifications for appointment reminders (`expo-notifications`).
 
 ## Tech Stack
 
-- [React Native](https://reactnative.dev/) with [Expo](https://expo.dev/)
+- [Expo](https://expo.dev) / React Native 0.81 + React 19
 - TypeScript
-- Firebase Authentication and Cloud Firestore
-- NativeWind and Tailwind CSS
-- `date-fns` for date and schedule utilities
-- Expo Application Services (EAS) for development and production builds
-
-## Getting Started
-
-### Prerequisites
-
-Install the following before running the project:
-
-- [Node.js](https://nodejs.org/) and npm
-- [Android Studio](https://developer.android.com/studio) with an Android emulator, or a physical Android device with USB debugging enabled
-- Java Development Kit (JDK) 17
-
-Because this app uses native Firebase and Google Sign-In modules, it must run in a native development build; it is not compatible with Expo Go.
-
-### Installation
-
-1. Clone the repository and enter the project directory.
-
-   ```bash
-   git clone <repository-url>
-   cd Barber-Shop-
-   ```
-
-2. Install the dependencies.
-
-   ```bash
-   npm install
-   ```
-
-3. Confirm that the Android Firebase configuration file is available at `google-services.json`. If you connect the app to a different Firebase project, replace this file and update the Firebase/Google Sign-In configuration for that project.
-
-4. Build and launch the Android development app.
-
-   ```bash
-   npm run android
-   ```
-
-5. For later sessions, start the Expo development server and open the installed development build.
-
-   ```bash
-   npm start
-   ```
-
-## Available Scripts
-
-| Command           | Description                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| `npm start`       | Start the Expo development server                                                     |
-| `npm run android` | Build and run the native Android app                                                  |
-| `npm run ios`     | Build and run the native iOS app (requires macOS and iOS Firebase configuration)      |
-| `npm run web`     | Start Expo for the web; native Firebase features may require additional configuration |
-
-## Firebase Data
-
-The app uses Firebase Authentication for account access and Cloud Firestore for application data. Its primary collections are:
-
-- `users` — client and barber account profiles
-- `barberProfile` — additional barber profile information
-- `services` — bookable services, descriptions, durations, and prices
-- `appointments` — requested bookings, assigned barbers, times, services, prices, and statuses
-
-Firebase configuration files can identify a project and are commonly committed for mobile apps, but access must still be protected with appropriate Firebase Authentication settings and Firestore security rules. Do not commit service-account keys or other administrative credentials.
+- NativeWind (Tailwind CSS for React Native)
+- Firebase (`@react-native-firebase/app`, `auth`, `firestore`)
+- Google Sign-In (`@react-native-google-signin/google-signin`)
 
 ## Project Structure
 
-```text
-.
-├── assets/                 # App icons, splash art, and images
+```
+CorteListo/
+├── App.tsx                  # App entry point / root component
+├── app.json                 # Expo app configuration
+├── firebaseConfig.ts        # Firebase initialization (not committed, see below)
+├── google-services.json     # Firebase Android config
 ├── src/
-│   ├── components/         # Reusable UI and booking controls
-│   ├── mocks/              # Service and development sample data
-│   ├── navigation/         # App view definitions
-│   ├── screens/            # Authentication and main app screens
-│   ├── services/           # Firebase authentication and data access
-│   ├── theme/              # Colors and typography
-│   ├── types/              # Shared TypeScript types
-│   └── utils/              # Date, schedule, formatting, and validation helpers
-├── App.tsx                 # Root app state and screen routing
-├── app.json                # Expo application configuration
-└── package.json            # Dependencies and npm scripts
+│   ├── components/          # Reusable UI components (buttons, inputs, cards, etc.)
+│   ├── mocks/                # Local mock data used during development
+│   ├── navigation/           # App and auth navigators
+│   ├── screens/               # App screens (Home, Login, Register, Services, Appointments, Profile)
+│   ├── services/               # Firebase/auth/notification service wrappers
+│   ├── theme/                   # Colors and fonts
+│   ├── types/                    # Shared TypeScript types
+│   └── utils/                     # Date, formatting, schedule, and validation helpers
+└── assets/                    # App icons, splash screen, images
 ```
 
-## Current Development Notes
+## Prerequisites
 
-- Services are loaded from the Firestore `services` collection.
-- Business hours are currently defined in the app as 9:00 a.m. to 5:00 p.m.
-- Appointment records and barber availability are stored in Firestore.
-- New appointment requests begin with a `pending` status.
-- Automated test and lint scripts have not yet been added to `package.json`.
+- [Node.js](https://nodejs.org/) 18 or later and npm
+- [Expo CLI](https://docs.expo.dev/get-started/installation/) (installed automatically via `npx`)
+- The [Expo Go](https://expo.dev/client) app on your phone, **or** Android Studio / Xcode with an emulator/simulator set up
+- A Firebase project (only required if you want to connect to your own backend instead of the one already configured)
+
+## Setup
+
+1. Clone the repository and install dependencies:
+
+   ```bash
+   git clone https://github.com/Yeampier2022/CorteListo.git
+   cd CorteListo
+   npm install
+   ```
+
+   > If `npm install` fails, try updating npm or run `npm install --legacy-peer-deps`.
+
+2. Firebase configuration:
+
+   - `firebaseConfig.ts` is excluded from version control (see `.gitignore`) because it contains project credentials. Request this file from the project owner, or create your own by copying the template below and filling in your Firebase project's values from the [Firebase Console](https://console.firebase.google.com/):
+
+     ```ts
+     // firebaseConfig.ts
+     const firebaseConfig = {
+       apiKey: "YOUR_API_KEY",
+       authDomain: "YOUR_PROJECT.firebaseapp.com",
+       projectId: "YOUR_PROJECT_ID",
+       storageBucket: "YOUR_PROJECT.firebasestorage.app",
+       messagingSenderId: "YOUR_SENDER_ID",
+       appId: "YOUR_APP_ID",
+     };
+     ```
+
+   - For native Android builds, also place your project's `google-services.json` in the repository root (and `android/app/` if you have generated the native project).
+
+## Running the App
+
+Start the Metro bundler:
+
+```bash
+npm start
+```
+
+Then choose a platform:
+
+```bash
+npm run android   # Run on a connected device/emulator (requires Android build tools)
+npm run ios       # Run on an iOS simulator (macOS only)
+npm run web       # Run in a browser
+```
+
+Alternatively, once `npm start` is running, scan the QR code with the **Expo Go** app on your phone to preview the app without a native build.
+
+> Note: this project uses native Firebase modules (`@react-native-firebase/*`), which require a **development build** (`expo-dev-client`) rather than the standard Expo Go client for full functionality. If you see errors related to native Firebase modules in Expo Go, run `npx expo run:android` (or `run:ios`) to build a development client.
+
+## Building
+
+This project is configured with [EAS Build](https://docs.expo.dev/build/introduction/) (`eas.json`). To create a build:
+
+```bash
+npx eas-cli build --platform android --profile preview
+```
+
+## Credentials
+
+This app does not require a login for reviewers by default — accounts can be created directly from the Register screen. If specific test credentials are required for grading/review, they are listed in the submission worksheet rather than in this repository.
