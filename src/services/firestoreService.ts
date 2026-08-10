@@ -19,6 +19,7 @@ import type {
   CreateAppointmentInput,
 } from "../types/appointment";
 import type { RegisterInput, UserProfile } from "../types/user";
+import type { Service } from "../types/service";
 
 export type { AppointmentStatus } from "../types/appointment";
 
@@ -158,6 +159,38 @@ export async function getBarbers(): Promise<BarberProfile[]> {
 
   console.log("[Firestore] barbers found:", barbers.length);
   return barbers;
+}
+
+export async function getServices(): Promise<Service[]> {
+  const db = getFirestore();
+  const snapshot = await getDocs(collection(db, "services"));
+
+  const services = snapshot.docs.flatMap((documentSnapshot) => {
+    const data = documentSnapshot.data();
+
+    if (
+      typeof data.name !== "string" ||
+      typeof data.description !== "string" ||
+      typeof data.duration !== "number" ||
+      typeof data.price !== "number"
+    ) {
+      console.warn(
+        `[Firestore] Ignoring invalid service document: services/${documentSnapshot.id}`
+      );
+      return [];
+    }
+
+    return [{
+      id: documentSnapshot.id,
+      name: data.name,
+      description: data.description,
+      duration: data.duration,
+      price: data.price,
+    }];
+  });
+
+  console.log("[Firestore] services found:", services.length);
+  return services;
 }
 
 export async function createAppointment(input: CreateAppointmentInput) {
