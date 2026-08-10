@@ -2,7 +2,7 @@
 
 A React Native (Expo) app for booking appointments at a barber shop. Users can browse services and barbers, pick a date and time, and manage their bookings. Data is stored in Firebase Firestore, and authentication is handled with Firebase Auth / Google Sign-In.
 
-## Favourite Quotes
+## Favorite Quotes
 
 **Tracy Catherine Nalubwama**
 > "Happy mind, happy life"
@@ -14,6 +14,7 @@ A React Native (Expo) app for booking appointments at a barber shop. Users can b
 > "The only way to do a great job is living what you do." - Steve Jobs
 
 **Madison Darger Thomas**
+
 > "The most important step a person can take is always the next one."
 
 ## Features
