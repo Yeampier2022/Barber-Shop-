@@ -31,7 +31,9 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo
@@ -44,7 +46,6 @@ yarn-error.*
 # Firebase Credentials
 #google-services.json
 GoogleService-Info.plist
-*.env
 
 # Firebase Config (si contiene credenciales)
 firebaseConfig.ts
@@ -52,6 +53,12 @@ firebaseConfig.ts
 # Archivos de configuración de Android
 android/local.properties
 android/app/google-services.json
+
+# Firebase Admin SDK / service account keys — never commit these
+*firebase-adminsdk*.json
+*serviceAccountKey*.json
+*service-account*.json
+*.keystore
 
 # AI tooling config
 CLAUDE.md

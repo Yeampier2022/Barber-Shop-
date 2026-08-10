@@ -5,12 +5,10 @@ Barber Shop is a mobile appointment-booking app built with React Native and Expo
 ## Favorite Quotes
 
 **Tracy Catherine Nalubwama**
-
-> "Happy mind Happy Life"
+> "Happy mind, happy life"
 
 **Jonatan Troche Almedia**
-
-> "The only way to do a great job is livig what do you do." - Steve Jobs
+> "The only way to do a great job is living what you do." - Steve Jobs
 
 **Madison Darger Thomas**
 
