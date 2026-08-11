@@ -11,9 +11,12 @@
     "web:offline": "set EXPO_NO_DEPENDENCY_VALIDATION=1 && expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/roboto-slab": "^0.4.2",
+    "@expo/vector-icons": "^15.1.1",
     "@react-native-firebase/app": "^25.1.0",
     "@react-native-firebase/auth": "^25.1.0",
     "@react-native-firebase/firestore": "^25.1.0",
+    "@react-native-google-signin/google-signin": "^16.1.2",
     "babel-preset-expo": "~54.0.0",
     "expo": "~54.0.36",
     "expo-notifications": "~0.32.17",
